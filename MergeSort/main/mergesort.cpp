@@ -1,4 +1,4 @@
-#include "MergeSort.h"
+#include "mergesort.h"
 #include <iostream>
 
 using namespace std;
@@ -109,6 +109,12 @@ typename LinkedList<T>::Node *LinkedList<T>::mergeSort(typename LinkedList<T>::N
 }
 
 template<typename T>
+void LinkedList<T>::sort()
+{
+    mergeSort(nullptr);
+}
+
+template<typename T>
 void LinkedList<T>::print() {
     // empty list.
     if (!root) {
@@ -123,4 +129,7 @@ void LinkedList<T>::print() {
     cout << cur->val;
 }
 
-
+template LinkedList<int>::LinkedList(vector<int> vec);
+template LinkedList<int>::~LinkedList();
+template void LinkedList<int>::sort();
+template void LinkedList<int>::print();

@@ -1,4 +1,4 @@
-#include "MergeSort.cpp"
+#include "mergesort.h"
 #include <iostream>
 
 using namespace std;
@@ -15,7 +15,7 @@ void test(T testCase) {
     IntLinkedList ll(testCase);
     ll.print();
 
-    ll.mergeSort(nullptr);
+    ll.sort();
 
     cout << "   ->   ";
 

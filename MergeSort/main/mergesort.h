@@ -1,3 +1,6 @@
+#ifndef MERGESORTDECL_H
+#define MERGESORTDECL_H
+
 #include <vector>
 
 // Declaration
@@ -20,6 +23,8 @@ class LinkedList {
 
     Node *merge(Node *, Node *);
 
+    Node *mergeSort(Node *);
+
 public:
     LinkedList() : root(nullptr) {};
 
@@ -27,7 +32,9 @@ public:
 
     ~LinkedList();
 
-    Node *mergeSort(Node *);
-
     void print();
+
+    void sort();
 };
+
+#endif
