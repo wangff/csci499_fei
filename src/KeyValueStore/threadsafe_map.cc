@@ -1,31 +1,32 @@
 #include <iostream>
-#include <thread>  // std::thread
-#include <unordered_map>
 #include <mutex>
+#include <thread>
+#include <unordered_map>
+
 #include "threadsafe_map.h"
 
-bool threadsafe_map::put(std::string key, std::string value) {
-  std::lock_guard<std::mutex> lock(m);
-  data[key] = value;
+bool ThreadsafeMap::Put(const std::string &key, const std::string &value) {
+  std::lock_guard<std::mutex> lock(data_locker_);
+  data_[key] = value;
   return true;
 }
 
-std::string threadsafe_map::get(std::string key) {
-  std::lock_guard<std::mutex> lock(m);
-  if (data.empty()) {
-    return "";
+std::optional<std::string> ThreadsafeMap::Get(const std::string &key) const {
+  std::lock_guard<std::mutex> lock(data_locker_);
+  if (data_.empty()) {
+    return std::nullopt;
   }
 
   // key does not exist.
-  if (!data.count(key)) {
-    return "";
+  if (!data_.count(key)) {
+    return std::nullopt;
   }
 
   // create a shared ptr.
-  return data[key];
+  return data_.at(key);
 }
 
-void threadsafe_map::remove(std::string key) {
-  std::lock_guard<std::mutex> lock(m);
-  data.erase(key);
+void ThreadsafeMap::Remove(const std::string &key) {
+  std::lock_guard<std::mutex> lock(data_locker_);
+  data_.erase(key);
 }

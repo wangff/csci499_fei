@@ -1,23 +1,30 @@
 #ifndef CSCI499_FEI_SRC_KEYVALUESTORE_THREADSAFE_MAP_H_
 #define CSCI499_FEI_SRC_KEYVALUESTORE_THREADSAFE_MAP_H_
 
-#include <unordered_map>
-#include <string>
 #include <mutex>
+#include <optional>
+#include <string>
+#include <unordered_map>
 
-class threadsafe_map {
- private:
-  std::unordered_map<std::string, std::string> data;
-  mutable std::mutex m;
-
+class ThreadsafeMap {
  public:
-  threadsafe_map() {};
+  ThreadsafeMap() : data_{}, data_locker_{} {};
 
-  bool put(std::string key, std::string value);
+  // Put a key-value pair to the store.
+  bool Put(const std::string &key, const std::string &value);
 
-  std::string get(std::string key);
+  // Given the key, get the corresponding value from the store.
+  std::optional<std::string> Get(const std::string &key) const;
 
-  void remove(std::string key);
+  // Given the key, remove the corresponding key-value pair from the store.
+  void Remove(const std::string &key);
+
+ private:
+  // A hashmap to save <key, value> pair.
+  std::unordered_map<std::string, std::string> data_;
+
+  // For thread safety, Use a mutex to avoid race condition.
+  mutable std::mutex data_locker_;
 };
 
 #endif //CSCI499_FEI_SRC_KEYVALUESTORE_THREADSAFE_MAP_H_

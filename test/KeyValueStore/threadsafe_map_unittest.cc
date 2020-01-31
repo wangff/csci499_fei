@@ -1,47 +1,71 @@
-#include "../../src/KeyValueStore/threadsafe_map.h"
 #include <string>
-#include <gtest/gtest.h>
 #include <thread>
 
-TEST(KeyValueStore, DefaultConstructor)
-{
-  threadsafe_map m;
-  auto mock_value = m.get("100");
-  EXPECT_EQ(0u, mock_value.size());
+#include <gtest/gtest.h>
+
+#include "../../src/KeyValueStore/threadsafe_map.h"
+
+using OptionalVector = std::vector<std::optional<std::string>>;
+
+void thread_put_pairs(ThreadsafeMap &m, int i) {
+  const auto key = std::to_string(i);
+  const auto value = key;
+  m.Put(key, value);
 }
 
-TEST(KeyValueStore, AddANewPair)
-{
-  threadsafe_map m;
+void thread_get_pairs(const ThreadsafeMap &m, OptionalVector *vec, int i) {
+  const auto key = std::to_string(i);
+  (*vec)[i] = m.Get(key);
+}
+
+void thread_remove_pairs(ThreadsafeMap &m, int i) {
+  const auto key = std::to_string(i);
+  m.Remove(key);
+}
+
+// Test: construct an empty map
+// Expected: null when get some key
+TEST(KeyValueStore, DefaultConstructor) {
+  ThreadsafeMap m;
+  auto mock_value = m.Get("100");
+  EXPECT_EQ(std::nullopt, mock_value);
+}
+
+// Test: Test Get method works well after putting some key-value pair into the map.
+// Expected: value "value is 100" given key "100"
+TEST(KeyValueStore, AddANewPair) {
+  ThreadsafeMap m;
+  auto key = "100";
+  auto value = "value is 100";
+  m.Put(key, value);
+  auto ret = m.Get(key);
+  EXPECT_EQ(true, ret.has_value());
+  EXPECT_EQ(value, ret.value());
+}
+
+// Test: Remove method
+// Expected: null given a key that has been removed
+TEST(KeyValueStore, remove) {
+  ThreadsafeMap m;
   std::string key = "100";
   std::string value = "I am a key, value is 100";
-  m.put(key, value);
-  EXPECT_EQ(value, m.get(key));
+
+  m.Put(key, value);
+  EXPECT_EQ(value, m.Get(key).value());
+
+  m.Remove(key);
+  EXPECT_EQ(std::nullopt, m.Get(key));
 }
 
-TEST(KeyValueStore, remove)
-{
-  threadsafe_map m;
-  std::string key = "100";
-  std::string value = "I am a key, value is 100";
-  m.put(key, value);
-  EXPECT_EQ(value, m.get(key));
-  m.remove(key);
-  EXPECT_EQ(0u, m.get(key).size());
-}
-
-void thread_put_pairs(threadsafe_map *m, int i);
-void thread_get_pairs(threadsafe_map *m, std::string *result, int i);
-void thread_remove_pairs(threadsafe_map *m, int i);
-
-TEST(KeyValueStore, MultithreadsPut)
-{
-  threadsafe_map m;
+// Test: multiple calls of Put method
+// Expected: All pairs are put successfully
+TEST(KeyValueStore, MultithreadsPut) {
+  ThreadsafeMap m;
 
   std::thread threads[10];
-  // spawn 10 threads:
+
   for (int i = 0; i < 10; ++i) {
-    threads[i] = std::thread(thread_put_pairs, &m, i);
+    threads[i] = std::thread(thread_put_pairs, std::ref(m), i);
   }
   for (int i = 0; i < 10; ++i) {
     threads[i].join();
@@ -50,66 +74,54 @@ TEST(KeyValueStore, MultithreadsPut)
   for (int i = 0; i < 10; ++i) {
     const auto key = std::to_string(i);
     const auto value = key;
-    EXPECT_EQ(value,m.get(key));
+    EXPECT_EQ(value, m.Get(key));
   }
 }
 
-
-TEST(KeyValueStore, MultithreadsPutGet)
-{
-  threadsafe_map m;
+// Test: multiple calls of Put method and get method
+// Expected: during the running, get
+//           either expected value based on key or null
+TEST(KeyValueStore, MultithreadsPutGet) {
+  ThreadsafeMap m;
 
   std::vector<std::thread> threads(20);
-  std::vector<std::string> results(10, "initialization");
+  OptionalVector results(10);
 
-  // spawn 10 threads:
   for (int i = 0; i < 10; ++i) {
-    threads[i] = std::thread(thread_put_pairs, &m, i);
-    threads[i+10] = std::thread(thread_get_pairs, &m, &results[i], i);
+    threads[i] = std::thread(thread_put_pairs, std::ref(m), i);
+    threads[i + 10] = std::thread(thread_get_pairs, std::ref(m), &results, i);
   }
   for (int i = 0; i < 20; ++i) {
     threads[i].join();
   }
   for (int i = 0; i < 10; ++i) {
-    const auto ExpectedValue = std::to_string(i);
-    const auto value = results[i];
-    EXPECT_TRUE(value == "" || value == ExpectedValue);
+    const auto expected_value = std::to_string(i);
+    const auto ret = results[i];
+
+    // doesn't exist or expected target value.
+    EXPECT_TRUE(ret == std::nullopt || ret.value() == expected_value);
   }
 }
 
-TEST(KeyValueStore, MultithreadsPutRemove)
-{
-  threadsafe_map m;
+// Test: multiple calls of Put method and remove method
+// Expected: after all calls succeed,
+//           get either expected value based on key or null
+TEST(KeyValueStore, MultithreadsPutRemove) {
+  ThreadsafeMap m;
 
   std::thread threads[20];
-  // spawn 10 threads:
+
   for (int i = 0; i < 10; ++i) {
-    threads[i] = std::thread(thread_put_pairs, &m, i);
-    threads[i+10] = std::thread(thread_remove_pairs, &m, i);
+    threads[i] = std::thread(thread_put_pairs, std::ref(m), i);
+    threads[i + 10] = std::thread(thread_remove_pairs, std::ref(m), i);
   }
   for (int i = 0; i < 20; ++i) {
     threads[i].join();
   }
   for (int i = 0; i < 10; ++i) {
     const auto key = std::to_string(i);
-    const auto value = m.get(key);
-    EXPECT_TRUE(value == "" || value == key);
+    const auto value = m.Get(key);
+    EXPECT_TRUE(value == std::nullopt || value.value() == key);
   }
 }
 
-// we need change value of m, so const is not allowed.
-void thread_put_pairs(threadsafe_map *m, int i) {
-  const auto key = std::to_string(i);
-  const auto value = key;
-  m->put(key, value);
-}
-
-void thread_get_pairs(threadsafe_map *m, std::string *result, int i){
-  const auto key = std::to_string(i);
-  *result = m->get(key);
-}
-
-void thread_remove_pairs(threadsafe_map *m, int i){
-  const auto key = std::to_string(i);
-  m->remove(key);
-}
