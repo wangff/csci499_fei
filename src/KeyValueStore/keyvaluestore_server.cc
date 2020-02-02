@@ -8,7 +8,7 @@
 #include <grpcpp/grpcpp.h>
 
 #include "threadsafe_map.h"
-#include "../build/KeyValueStore.grpc.pb.h"
+#include "KeyValueStore.grpc.pb.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
