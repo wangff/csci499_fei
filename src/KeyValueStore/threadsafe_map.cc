@@ -13,16 +13,12 @@ bool ThreadsafeMap::Put(const std::string &key, const std::string &value) {
 
 std::optional<std::string> ThreadsafeMap::Get(const std::string &key) const {
   std::lock_guard<std::mutex> lock(data_locker_);
-  if (data_.empty()) {
-    return std::nullopt;
-  }
-
   // key does not exist.
   if (!data_.count(key)) {
     return std::nullopt;
   }
 
-  // create a shared ptr.
+  // return the value based on a key, if it exists in the hashmap.
   return data_.at(key);
 }
 
