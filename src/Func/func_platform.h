@@ -32,6 +32,8 @@ class FuncPlatform {
   Payload Execute(const EventType &, const Payload &);
 
  private:
+  // Pointer of storage abstraction.
+  // Used to access the KeyValue storage.
   StoragePtr kv_store_;
 };
 
