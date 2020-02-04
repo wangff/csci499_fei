@@ -9,6 +9,8 @@ using StringVector = std::vector<std::string>;
 using StringOptional = std::optional<std::string>;
 using StringOptionalVector = std::vector<StringOptional>;
 
+// A key-value storage abstraction that can enable storage and retrieval of data.
+// The callers do not know the implementation of storage.
 class StorageAbstraction {
  public:
   StorageAbstraction() = default;

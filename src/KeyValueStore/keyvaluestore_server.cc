@@ -1,73 +1,45 @@
-#include <iostream>
-#include <string>
+#include "keyvaluestore_server.h";
 
+Status KeyValueStoreServiceImpl::put(ServerContext *context, const PutRequest *request,
+           PutReply *reply) {
 
-#include <gflags/gflags.h>
-#include <glog/logging.h>
-#include <glog/stl_logging.h>
-#include <grpcpp/grpcpp.h>
+  auto key = request->key();
+  auto value = request->value();
 
-#include "threadsafe_map.h"
-#include "KeyValueStore.grpc.pb.h"
+  LOG(INFO) << "Received PutRequest. "
+            << " Key: " << key;
+  threadsafe_map_.Put(key, value);
 
-using grpc::Server;
-using grpc::ServerBuilder;
-using grpc::ServerContext;
-using grpc::ServerReader;
-using grpc::ServerReaderWriter;
-using grpc::ServerWriter;
-using grpc::Status;
-using kvstore::PutRequest;
-using kvstore::PutReply;
-using kvstore::GetRequest;
-using kvstore::GetReply;
-using kvstore::RemoveRequest;
-using kvstore::RemoveReply;
-using kvstore::KeyValueStore;
+  return Status::OK;
+}
 
-class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
- public:
-  Status put(ServerContext *context, const PutRequest *request, PutReply *reply) override {
-
-    auto key = request->key();
-    auto value = request->value();
-
-    LOG(INFO) << "Received PutRequest. "
+Status KeyValueStoreServiceImpl::get(ServerContext *context,
+           ServerReaderWriter<GetReply, GetRequest> *stream) {
+  GetRequest request;
+  while (stream->Read(&request)) {
+    auto key = request.key();
+    auto value = threadsafe_map_.Get(key);
+    LOG(INFO) << "Received GetRequest. "
               << " Key: " << key;
-    threadsafe_map_.Put(key, value);
-
-    return Status::OK;
-  }
-
-  Status get(ServerContext *context, ServerReaderWriter<GetReply, GetRequest> *stream) override {
-    GetRequest request;
-    while (stream->Read(&request)) {
-      auto key = request.key();
-      auto value = threadsafe_map_.Get(key);
-      LOG(INFO) << "Received GetRequest. "
-                << " Key: " << key;
-      GetReply reply;
-      if(value.has_value()){
-        reply.set_value(value.value());
-      }
-      stream->Write(reply);
+    GetReply reply;
+    if (value.has_value()) {
+      reply.set_value(value.value());
     }
-    return Status::OK;
+    stream->Write(reply);
   }
+  return Status::OK;
+}
 
-  Status remove(ServerContext *context, const RemoveRequest *request,
-                RemoveReply *reply) override {
-    auto key = request->key();
-    LOG(INFO) << "Received RemoveRequest. "
-              << " Key: " << key;
-    threadsafe_map_.Remove(key);
-    return Status::OK;
-  }
+Status KeyValueStoreServiceImpl::remove(ServerContext *context, const RemoveRequest *request,
+              RemoveReply *reply) {
+  auto key = request->key();
+  LOG(INFO) << "Received RemoveRequest. "
+            << " Key: " << key;
+  threadsafe_map_.Remove(key);
+  return Status::OK;
+}
 
- private:
-  ThreadsafeMap threadsafe_map_;
-};
-
+// Helper function: to run the gRPC server.
 void RunServer() {
   std::string server_address("0.0.0.0:50000");
   KeyValueStoreServiceImpl service;

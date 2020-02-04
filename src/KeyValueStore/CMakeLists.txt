@@ -26,7 +26,7 @@ set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 
 include_directories("${CMAKE_BINARY_DIR}")
 
-add_executable(KVStore_server keyvaluestore_server.cc threadsafe_map.cc threadsafe_map.h)
+add_executable(KVStore_server keyvaluestore_server.cc  keyvaluestore_server.h threadsafe_map.cc threadsafe_map.h)
 
 target_link_libraries(KVStore_server key_value_store_pb)
 target_link_libraries(KVStore_server ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})

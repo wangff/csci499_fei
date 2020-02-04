@@ -11,10 +11,13 @@
 using grpc::Channel;
 using kvstore::KeyValueStore;
 
+// The gRPC implementation of key-value storage abstraction.
+// Run as the gRPC client to communicate with gRPC Server of KeyValue Storage.
 class KeyValueStoreClient : public StorageAbstraction {
  public:
   explicit KeyValueStoreClient(std::shared_ptr<grpc::Channel>);
 
+  // Put a key-value pair into the storage
   void Put(const std::string &, const std::string &) override;
 
   // Get values based on keys
@@ -24,7 +27,7 @@ class KeyValueStoreClient : public StorageAbstraction {
   void Remove(const std::string &) override;
 
  private:
-  std::unique_ptr<KeyValueStore::Stub> stub_{};
+  std::unique_ptr<KeyValueStore::Stub> stub_;
 };
 
 #endif //FAAS_SRC_FUNC_KEYVALUESTORE_CLIENT_H_
