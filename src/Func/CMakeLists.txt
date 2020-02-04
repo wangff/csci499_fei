@@ -27,7 +27,7 @@ include_directories(
 )
 
 # Func Service
-add_executable(func_service keyvaluestore_client.cc keyvaluestore_client.h)
+add_executable(func_service func_service.cc func_platform.cc func_platform.h storage_abstraction.h keyvaluestore_client.cc keyvaluestore_client.h)
 
 # KeyValue Client
 #add_executable(KVStore_client keyvaluestore_client.cc)
@@ -35,6 +35,8 @@ add_executable(func_service keyvaluestore_client.cc keyvaluestore_client.h)
 #foreach(_target func_service KVStore_client)
 foreach(_target func_service)
   target_link_libraries(${_target} key_value_store_pb)
+  target_link_libraries(${_target} func_pb)
+
   target_link_libraries(${_target} ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
   target_link_libraries(${_target} glog::glog)
   target_link_libraries(${_target} gflags)
