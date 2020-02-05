@@ -5,11 +5,12 @@
 
 #include "func_platform.h"
 #include "storage_abstraction.h"
+#include "warble_service.h"
 
 using ::testing::Return;
 
 // Mock Class of StorageAbstraction
-// Used for dependency injection for Func_service constructor
+// Used for dependency injection for Func_platform constructor
 class MockStorage: public StorageAbstraction {
  public:
   MOCK_METHOD2(Put, void(const std::string &, const std::string &));
@@ -17,42 +18,45 @@ class MockStorage: public StorageAbstraction {
   MOCK_METHOD1(Remove, void(const std::string &));
 };
 
+// Mock Class of Warble
+// Used for dependency injection for Func_platform constructor
+class MockWarble: public Warble {
+ public:
+  // TODO
+};
+
 // Init the global variables for all the test cases in this test suite
 class FuncPlatformTest: public ::testing::Test {
  public:
-  FuncPlatformTest(): mock_store_(new MockStorage), service_(new FuncPlatform(mock_store_)) {}
+  FuncPlatformTest(): mock_store_(new MockStorage), mock_warble_(new MockWarble) {
+    auto platform = new FuncPlatform(mock_store_, mock_warble_);
+    service_ = std::unique_ptr<FuncPlatform>(platform);
+  }
+
  protected:
-  std::shared_ptr<MockStorage> mock_store_;
+  // func platform, core arch.
   std::unique_ptr<FuncPlatform> service_;
- };
 
-// Test: Hook method of FunPlatform will call Put method of Storage.
-// Expected: When we request hooking once with eventType = 1; function = "function1",
-//           Put should be called once with arguments key = "event_1", values = "function1".
+  // dependencies
+  StoragePtr mock_store_;
+  WarblePtr mock_warble_;
+};
+
+// Test: Hook will store the pair of event function in the local hashmap.
+// Expected: When we hook with event_type = 1; function_str = "function1",
+//           we expect the pair exists in the local hashmap.
 TEST_F(FuncPlatformTest, CanHook) {
-  EXPECT_CALL(*mock_store_, Put("event_"+std::to_string(1),"functon1")).Times(1);
-  service_->Hook(1,"functon1");
+  int event_type = 1;
+  std::string function_str = "register";
+  service_->Hook(event_type, function_str);
+  EXPECT_EQ(function_str,service_->hook_dict_[event_type]);
 }
 
-// Test: Unkook method of FunPlatform will call Remove method of Storage.
-// Expected: When we request unkooking once with eventType = 1,
-//           Remove should be called once with arguments key = "event_1".
-TEST_F(FuncPlatformTest, CanRemove) {
-  EXPECT_CALL(*mock_store_, Remove("event_"+std::to_string(1))).Times(1);
-  service_->Unhook(1);
-}
-
-// Test: Execute method of FunPlatform will call Get method of Storage.
-// Expected: When we request execute once with eventType = 1 and Payload = payload,
-//           Get should be called once with arguments keys = expected_keys and return default_return_vector.
-TEST_F(FuncPlatformTest,CanExecute) {
-  StringVector expected_keys;
-  expected_keys.push_back("event_"+std::to_string(1));
-  StringOptionalVector default_return_vector;
-  default_return_vector.push_back("function1");
-  EXPECT_CALL(*mock_store_, Get(expected_keys))
-  .Times(1)
-  .WillOnce(Return(default_return_vector));
-  Payload payload;
-  service_->Execute(1,payload);
+// Test: Unkook the mapping relationship between event and function.
+// Expected: When we unhook with event_type = 1,
+//           we expect nothing from the the local hashmap based on the event_type.
+TEST_F(FuncPlatformTest, CanUnhook) {
+  int event_type = 1;
+  service_->Unhook(event_type);
+  EXPECT_EQ("",service_->hook_dict_[event_type]);
 }

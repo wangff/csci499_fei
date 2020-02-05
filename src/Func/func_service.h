@@ -32,7 +32,7 @@ using func::FuncService;
 class FuncServiceImpl final : public FuncService::Service {
  public:
   // Constructor with the argument StoragePtr that is used to access the KeyValue storage.
-  FuncServiceImpl(StoragePtr storage_ptr);
+  FuncServiceImpl(StoragePtr storage_ptr, WarblePtr warble_ptr);
 
   // Receive and process gRPC HookRequest for Func.
   // Hook the pair of event type and event function.

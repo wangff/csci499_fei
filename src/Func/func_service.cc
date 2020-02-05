@@ -1,6 +1,6 @@
 #include "func_service.h"
 
-FuncServiceImpl::FuncServiceImpl(StoragePtr storage_ptr): func_platform_(new FuncPlatform(storage_ptr)) {};
+FuncServiceImpl::FuncServiceImpl(StoragePtr storage_ptr, WarblePtr warble_ptr): func_platform_(new FuncPlatform(storage_ptr,warble_ptr)) {};
 
 Status FuncServiceImpl::hook(ServerContext *context, const HookRequest *request, HookReply *reply) {
   auto event_type = request->event_type();
@@ -29,10 +29,11 @@ Status FuncServiceImpl::event(ServerContext *context, const EventRequest *reques
 void RunServer() {
 
   auto channel = grpc::CreateChannel("localhost:50000", grpc::InsecureChannelCredentials());
-  std::shared_ptr<StorageAbstraction> storage_ptr = std::shared_ptr<KeyValueStoreClient>(new KeyValueStoreClient(channel));
+  StoragePtr storage_ptr = std::shared_ptr<KeyValueStoreClient>(new KeyValueStoreClient(channel));
+  WarblePtr warble_ptr = std::shared_ptr<Warble>(new Warble);
 
   std::string server_address("0.0.0.0:50001");
-  FuncServiceImpl func_service(storage_ptr);
+  FuncServiceImpl func_service(storage_ptr,warble_ptr);
 
   ServerBuilder builder;
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
