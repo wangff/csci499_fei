@@ -41,7 +41,8 @@ class FuncPlatform {
   // Used to access the KeyValue storage.
   StoragePtr kv_store_;
 
-  //
+  // Pointer of Warble.
+  // Used to access the handler functions.
   WarblePtr warble_service_;
 
   // A hash map to store hooking information of event type and string
