@@ -4,6 +4,8 @@
 #include <sstream>
 #include <sys/time.h>
 
+#include <glog/logging.h>
+
 #include "func_service_client.h"
 #include "user_interface_cmd.h"
 #include "Warble.grpc.pb.h"
@@ -32,6 +34,9 @@ std::vector<std::string> split(const std::string &s, char delim) {
 
 int main(int argc, char **argv)
 {
+  // Initialize Google's logging library.
+  google::InitGoogleLogging(argv[0]);
+
   // Parse command line flags
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
@@ -56,12 +61,14 @@ int main(int argc, char **argv)
     auto function_str = splited_vector.at(1);
     func_service_client.Hook(event_type,function_str);
     std::cout << "Hook " << event_type << ":" << function_str << std::endl;
+    LOG(INFO) << "Hook " << event_type << ":" << function_str << std::endl;
   }
   // ./Warble --unhook "event type"
   else if (!flag_unhook_not_set) {
     auto event_type = std::stoi(FLAGS_unhook);
     func_service_client.UnHook(event_type);
     std::cout << "UnHook " << event_type << std::endl;
+    LOG(INFO) << "UnHook " << event_type << std::endl;
   }
   // ./Warble --registeruser "username"
   else if (!flag_resgisteruser_not_set) {
@@ -72,6 +79,7 @@ int main(int argc, char **argv)
     int event_type = 1;
     func_service_client.Event(event_type, &payload);
     std::cout << "Register user: " << FLAGS_resgisteruser;
+    LOG(INFO) << "Register user: " << FLAGS_resgisteruser;
   }
   // ./Warble --user "username" --warble "warble content"
   // ./Warble --user "username" --warble "warble content" --parent_id "reply to id"
@@ -82,15 +90,23 @@ int main(int argc, char **argv)
     request.set_username(FLAGS_user);
     request.set_text(FLAGS_warble);
     std::cout << "User: " << FLAGS_user << "warble: " << FLAGS_warble;
+    LOG(INFO) << "User: " << FLAGS_user << "warble: " << FLAGS_warble;
     if(!flag_reply_not_set) {
       request.set_parent_id(FLAGS_reply);
       std::cout << "This warble reply: " << FLAGS_reply;
+      LOG(INFO) << "This warble reply: " << FLAGS_reply;
     }
     payload.PackFrom(request);
-    Any resPayload = func_service_client.Event(event_type, &payload);
+    Any res_payload = func_service_client.Event(event_type, &payload);
     Warble reply;
-    resPayload.UnpackTo(&reply);
+    res_payload.UnpackTo(&reply);
     std::cout << "Warble has been stored successfully. \n"
+              << "username: "+reply.username()+"\n"
+              << "warble id: "+reply.id()+"\n"
+              << "warble text: "+reply.text()+"\n"
+              << "parent id: "+reply.parent_id()+"\n"
+              << "at time: " << reply.timestamp().seconds() << std::endl;
+    LOG(INFO) << "Warble has been stored successfully. \n"
               << "username: "+reply.username()+"\n"
               << "warble id: "+reply.id()+"\n"
               << "warble text: "+reply.text()+"\n"
@@ -107,6 +123,7 @@ int main(int argc, char **argv)
     payload.PackFrom(request);
     func_service_client.Event(event_type, &payload);
     std::cout << "User: " << FLAGS_user << "follow: " << "User: " << FLAGS_follow;
+    LOG(INFO) << "User: " << FLAGS_user << "follow: " << "User: " << FLAGS_follow;
   }
   // ./Warble --read "The ID of the warble to start the read at."
   else if (!flag_read_not_set) {
@@ -115,12 +132,16 @@ int main(int argc, char **argv)
     request.set_warble_id(FLAGS_read);
     Any payload;
     payload.PackFrom(request);
-    Any resPayload = func_service_client.Event(event_type, &payload);
+    Any res_payload = func_service_client.Event(event_type, &payload);
     ReadReply reply;
-    resPayload.UnpackTo(&reply);
+    res_payload.UnpackTo(&reply);
     std::cout << "Reads the warble thread starting at " << FLAGS_read << ".\n";
-    for (auto warble : reply.warbles()) {
+    LOG(INFO) << "Reads the warble thread starting at " << FLAGS_read << ".\n";
+    for (const auto& warble : reply.warbles()) {
       std::cout << "User: "+ warble.username()
+                << "; Warble Number: " + warble.id()
+                << "; Warble Text: " + warble.text();
+      LOG(INFO) << "User: "+ warble.username()
                 << "; Warble Number: " + warble.id()
                 << "; Warble Text: " + warble.text();
     }
@@ -132,19 +153,22 @@ int main(int argc, char **argv)
     request.set_username(FLAGS_user);
     Any payload;
     payload.PackFrom(request);
-    Any resPayload = func_service_client.Event(event_type, &payload);
+    Any res_payload = func_service_client.Event(event_type, &payload);
     ProfileReply reply;
-    resPayload.UnpackTo(&reply);
+    res_payload.UnpackTo(&reply);
     auto followers = reply.followers();
     auto followings = reply.following();
-    std::cout << "Followers :\n";
-    for (auto follower : followers) {
+    std::cout << "User: " << FLAGS_user << "has followers :\n";
+    LOG(INFO) << "User: " << FLAGS_user << "has followers :\n";
+    for (const auto& follower : followers) {
       std::cout << follower;
+      LOG(INFO) << follower;
     }
-    std::cout << "Followings :\n";
-    for (auto following: followings) {
+    std::cout << "User: " << FLAGS_user << "has followings :\n";
+    LOG(INFO) << "User: " << FLAGS_user << "has followings :\n";
+    for (const auto& following : followings) {
       std::cout << following;
+      LOG(INFO) << following;
     }
-    std::cout << "Echo: " << FLAGS_follow << "\n";
   }
 }
