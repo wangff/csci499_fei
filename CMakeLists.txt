@@ -1,0 +1,14 @@
+cmake_minimum_required(VERSION 3.15)
+
+project(Faas)
+
+add_subdirectory(proto)
+
+# all source code
+add_subdirectory(src/KeyValueStore)
+add_subdirectory(src/Func)
+
+# all tests
+#add_subdirectory(test/KeyValueStore)
+#add_subdirectory(test/Func)
+add_subdirectory(test)
