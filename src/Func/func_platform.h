@@ -36,6 +36,10 @@ class FuncPlatform {
   // Execute handler function based on event type
   Payload Execute(const EventType &, const Payload &);
 
+  // Make private members could be accessed in unittest
+  FRIEND_TEST(FuncPlatformTest, CanHook);
+  FRIEND_TEST(FuncPlatformTest, CanUnhook);
+
  private:
   // Pointer of storage abstraction.
   // Used to access the KeyValue storage.
@@ -47,11 +51,6 @@ class FuncPlatform {
 
   // A hash map to store hooking information of event type and string
   EventPairSet hook_dict_;
-
- public:
-  // Make private members could be accessed in unittest
-  FRIEND_TEST(FuncPlatformTest, CanHook);
-  FRIEND_TEST(FuncPlatformTest, CanUnhook);
 };
 
 #endif //CSCI499_FEI_SRC_FUNC_FUNC_PLATFORM_H_

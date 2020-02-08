@@ -27,7 +27,6 @@ Status FuncServiceImpl::event(ServerContext *context, const EventRequest *reques
 // 1. Run the func service grPCC server.
 // 2. Create gRPC client to access KeyValue storage.
 void RunServer() {
-
   auto channel = grpc::CreateChannel("localhost:50000", grpc::InsecureChannelCredentials());
   StoragePtr storage_ptr = std::shared_ptr<KeyValueStoreClient>(new KeyValueStoreClient(channel));
   WarblePtr warble_ptr = std::shared_ptr<Warble>(new Warble);
