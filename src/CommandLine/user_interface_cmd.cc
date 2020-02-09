@@ -21,6 +21,12 @@ using warble::ReadReply;
 using warble::ProfileRequest;
 using warble::ProfileReply;
 
+// Helper function: Log with glog and print in console
+void logAndPrint(const std::string &s) {
+  LOG(INFO) << s;
+  std::cout << s;
+}
+
 // Helper function: split string by delimiter
 std::vector<std::string> split(const std::string &s, char delim) {
   std::istringstream iss(s);
@@ -60,15 +66,15 @@ int main(int argc, char **argv)
     auto event_type = std::stoi(splited_vector.at(0));
     auto function_str = splited_vector.at(1);
     func_service_client.Hook(event_type,function_str);
-    std::cout << "Hook " << event_type << ":" << function_str << std::endl;
-    LOG(INFO) << "Hook " << event_type << ":" << function_str << std::endl;
+    std::string output_str = "Hook " + std::to_string(event_type) + ":" + function_str +".\n";
+    logAndPrint(output_str);
   }
   // ./Warble --unhook "event type"
   else if (!flag_unhook_not_set) {
     auto event_type = std::stoi(FLAGS_unhook);
     func_service_client.UnHook(event_type);
-    std::cout << "UnHook " << event_type << std::endl;
-    LOG(INFO) << "UnHook " << event_type << std::endl;
+    std::string output_str = "UnHook " + std::to_string(event_type) + ".\n";
+    logAndPrint(output_str);
   }
   // ./Warble --registeruser "username"
   else if (!flag_resgisteruser_not_set) {
@@ -78,8 +84,8 @@ int main(int argc, char **argv)
     payload.PackFrom(request);
     int event_type = 1;
     func_service_client.Event(event_type, &payload);
-    std::cout << "Register user: " << FLAGS_resgisteruser;
-    LOG(INFO) << "Register user: " << FLAGS_resgisteruser;
+    std::string output_str = "Register user: " + FLAGS_resgisteruser + ".\n";
+    logAndPrint(output_str);
   }
   // ./Warble --user "username" --warble "warble content"
   // ./Warble --user "username" --warble "warble content" --parent_id "reply to id"
@@ -89,29 +95,23 @@ int main(int argc, char **argv)
     WarbleRequest request;
     request.set_username(FLAGS_user);
     request.set_text(FLAGS_warble);
-    std::cout << "User: " << FLAGS_user << "warble: " << FLAGS_warble;
-    LOG(INFO) << "User: " << FLAGS_user << "warble: " << FLAGS_warble;
+    std::string output_str = "User: " + FLAGS_user + "warble: " + FLAGS_warble + ".\n";
+    logAndPrint(output_str);
     if(!flag_reply_not_set) {
       request.set_parent_id(FLAGS_reply);
-      std::cout << "This warble reply: " << FLAGS_reply;
-      LOG(INFO) << "This warble reply: " << FLAGS_reply;
+      std::string output_str = "This warble reply: " + FLAGS_reply + ".\n";
+      logAndPrint(output_str);
     }
     payload.PackFrom(request);
     Any res_payload = func_service_client.Event(event_type, &payload);
     Warble reply;
     res_payload.UnpackTo(&reply);
-    std::cout << "Warble has been stored successfully. \n"
-              << "username: "+reply.username()+"\n"
-              << "warble id: "+reply.id()+"\n"
-              << "warble text: "+reply.text()+"\n"
-              << "parent id: "+reply.parent_id()+"\n"
-              << "at time: " << reply.timestamp().seconds() << std::endl;
-    LOG(INFO) << "Warble has been stored successfully. \n"
-              << "username: "+reply.username()+"\n"
-              << "warble id: "+reply.id()+"\n"
-              << "warble text: "+reply.text()+"\n"
-              << "parent id: "+reply.parent_id()+"\n"
-              << "at time: " << reply.timestamp().seconds() << std::endl;
+    output_str =  "Warble has been stored successfully. \n username: " + reply.username() + "\n"
+                + "warble id: " + reply.id() + "\n"
+                + "warble text: " + reply.text() + "\n"
+                + "parent id: " + reply.parent_id() + "\n"
+                + "at time: " + std::to_string(reply.timestamp().seconds()) + ".\n";
+    logAndPrint(output_str);
   }
   // ./Warble --user "username" --follow "follow_to_user"
   else if (!flag_user_not_set and !flag_follow_not_set) {
@@ -122,8 +122,8 @@ int main(int argc, char **argv)
     Any payload;
     payload.PackFrom(request);
     func_service_client.Event(event_type, &payload);
-    std::cout << "User: " << FLAGS_user << "follow: " << "User: " << FLAGS_follow;
-    LOG(INFO) << "User: " << FLAGS_user << "follow: " << "User: " << FLAGS_follow;
+    std::string output_str = "User: " + FLAGS_user + "follow: " + "User: " + FLAGS_follow + ".\n";
+    logAndPrint(output_str);
   }
   // ./Warble --read "The ID of the warble to start the read at."
   else if (!flag_read_not_set) {
@@ -135,15 +135,11 @@ int main(int argc, char **argv)
     Any res_payload = func_service_client.Event(event_type, &payload);
     ReadReply reply;
     res_payload.UnpackTo(&reply);
-    std::cout << "Reads the warble thread starting at " << FLAGS_read << ".\n";
-    LOG(INFO) << "Reads the warble thread starting at " << FLAGS_read << ".\n";
+    std::string output_str =  "Reads the warble thread starting at " + FLAGS_read + ".\n";
+    logAndPrint(output_str);
     for (const auto& warble : reply.warbles()) {
-      std::cout << "User: "+ warble.username()
-                << "; Warble Number: " + warble.id()
-                << "; Warble Text: " + warble.text();
-      LOG(INFO) << "User: "+ warble.username()
-                << "; Warble Number: " + warble.id()
-                << "; Warble Text: " + warble.text();
+      output_str = "User: "+ warble.username() + "; Warble Number: " + warble.id() + "; Warble Text: " + warble.text() + ".\n";
+      logAndPrint(output_str);
     }
   }
   // ./Warble --user "username" --profile
@@ -158,17 +154,15 @@ int main(int argc, char **argv)
     res_payload.UnpackTo(&reply);
     auto followers = reply.followers();
     auto followings = reply.following();
-    std::cout << "User: " << FLAGS_user << "has followers :\n";
-    LOG(INFO) << "User: " << FLAGS_user << "has followers :\n";
+    std::string output_str =  "User: " + FLAGS_user + "has followers :\n";
+    logAndPrint(output_str);
     for (const auto& follower : followers) {
-      std::cout << follower;
-      LOG(INFO) << follower;
+      logAndPrint(follower);
     }
-    std::cout << "User: " << FLAGS_user << "has followings :\n";
-    LOG(INFO) << "User: " << FLAGS_user << "has followings :\n";
+    output_str = "User: " + FLAGS_user + "has followings :\n";
+    logAndPrint(output_str);
     for (const auto& following : followings) {
-      std::cout << following;
-      LOG(INFO) << following;
+      logAndPrint(following);
     }
   }
 }

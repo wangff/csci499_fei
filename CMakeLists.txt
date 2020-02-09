@@ -7,7 +7,7 @@ add_subdirectory(proto)
 # all source code
 add_subdirectory(src/KeyValueStore)
 add_subdirectory(src/Func)
-
+add_subdirectory(src/CommandLine)
 # all tests
 #add_subdirectory(test/KeyValueStore)
 #add_subdirectory(test/Func)
