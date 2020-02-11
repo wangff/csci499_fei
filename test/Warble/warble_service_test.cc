@@ -9,7 +9,7 @@
 using ::testing::Return;
 
 // Mock Class of StorageAbstraction
-// Used for dependency injection for Func_platform constructor
+// Used for dependency injection for Warble constructor
 class MockStorage: public StorageAbstraction {
  public:
   MOCK_METHOD2(Put, void(const std::string &, const std::string &));
