@@ -84,29 +84,3 @@ void KeyValueStoreClient::Remove(const std::string &key) {
                << "Error: " << status.error_code() << ", " << status.error_message();
   }
 }
-
-int main(int argc, char **argv) {
-  // Initialize Google's logging library.
-  google::InitGoogleLogging(argv[0]);
-
-  // Optional: parse command line flags
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
-
-  auto channel = grpc::CreateChannel("localhost:50000", grpc::InsecureChannelCredentials());
-  KeyValueStoreClient kv_store_client(channel);
-
-  std::vector<std::string> key_vector = {"first", "second", "third", "forth"};
-  for (auto key:key_vector) {
-    kv_store_client.Put(key, key + " value");
-  }
-
-  auto value_vector = kv_store_client.Get(key_vector);
-
-  // remove all key-value pairs.
-  for (auto key:key_vector) {
-    kv_store_client.Remove(key);
-  }
-
-  value_vector = kv_store_client.Get(key_vector);
-  return 0;
-}
