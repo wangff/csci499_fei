@@ -8,7 +8,7 @@ add_subdirectory(proto)
 add_subdirectory(src/KeyValueStore)
 add_subdirectory(src/Func)
 #add_subdirectory(src/Warble)
-
+add_subdirectory(src/CommandLine)
 # all tests
 #add_subdirectory(test/KeyValueStore)
 #add_subdirectory(test/Func)
