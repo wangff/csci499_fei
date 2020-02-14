@@ -1,9 +1,8 @@
+#include "warble_service.h"
+
 #include <iostream>
-#include <vector>
 #include <string>
 #include <sstream>
-
-#include "warble_service.h"
 
 // Helper function: split string by delimiter
 StringVector deserialize(const std::string &s, char delim) {
@@ -16,15 +15,21 @@ StringVector deserialize(const std::string &s, char delim) {
   return res;
 }
 
-Warble::Warble(const StoragePtr &storage_ptr) : kv_store_(storage_ptr) {};
-
 bool Warble::RegisterUser(const std::string &user_name) {
   // Initialize user profile
-  auto user_warble_key  = user_warbles_prefix + user_prefix + user_name;
+  auto user_warbles_key  = user_warbles_prefix + user_prefix + user_name;
   auto user_followers_key = user_followers_prefix + user_prefix + user_name;
   auto user_followings_key = user_followings_prefix + user_prefix + user_name;
-
-  kv_store_->Put(user_warble_key, "");
+  StringVector keys_vector = {user_warbles_key};
+  auto user_warbles = kv_store_->Get(keys_vector).at(0);
+  bool is_user_exist = false;
+  if (user_warbles != std::nullopt) {
+    is_user_exist = true;
+  }
+  if (is_user_exist) {
+    return false;
+  }
+  kv_store_->Put(user_warbles_key, "");
   kv_store_->Put(user_followers_key, "");
   kv_store_->Put(user_followings_key, "");
   return true;

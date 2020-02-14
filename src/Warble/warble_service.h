@@ -7,17 +7,12 @@
 #include <gtest/gtest_prod.h>
 
 #include "../Func/storage_abstraction.h"
+#include "profile.h"
 
 using StoragePtr = std::shared_ptr<StorageAbstraction>;
 using StringVector = std::vector<std::string>;
 using StringOptional = std::optional<std::string>;
 using StringOptionalVector = std::vector<StringOptional>;
-
-// User's profile of following and followers.
-struct Profile {
-  StringVector profile_followings;
-  StringVector profile_followers;
-};
 
 // Warble application: a collection of handler functions to process users requests
 class Warble {
@@ -30,7 +25,7 @@ class Warble {
 
   // Constructor with the parameter of StoragePtr.
   // StoragePtr used by Warble to communicate with KeyValueStore.
-  explicit Warble(const StoragePtr &);
+  Warble(const StoragePtr &storage_ptr) : kv_store_(storage_ptr) {};
 
   // Register the given user_name
   bool RegisterUser(const std::string &user_name);

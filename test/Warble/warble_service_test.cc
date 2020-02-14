@@ -27,18 +27,43 @@ class WarbleTest: public ::testing::Test {
   std::unique_ptr<Warble> warble_;
 };
 
-// Test: RegisterUser will initialize warble list, followers list, following list for the new user.
-// Exepcted: RegisterUser will call KeyValueStore Put function three times will corresponding key and empty value.
-TEST_F(WarbleTest, RegisterUser) {
+// Test: RegisterUser successfully initializes warble list, followers list, following list for the new user.
+//       and the username has not been registered.
+// Expected: RegisterUser will call KeyValueStore Put function three times will corresponding key and empty value.
+//           RegisterUser return value true.
+TEST_F(WarbleTest, RegisterUserSuccessfully) {
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
   std::string mock_user_followers_key = "user_followers_user_Harry Potter";
   std::string mock_user_followings_key = "user_followings_user_Harry Potter";
+
+  StringVector mock_key_vector = {mock_user_warbles_key};
+  StringOptionalVector mock_user_warbles_value = {StringOptional()};
+  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
+             .Times(1)
+             .WillOnce(Return(mock_user_warbles_value));
   EXPECT_CALL(*mock_store_, Put(mock_user_warbles_key, ""));
   EXPECT_CALL(*mock_store_, Put(mock_user_followers_key, ""));
   EXPECT_CALL(*mock_store_, Put(mock_user_followings_key, ""));
-
   std::string user_name = "Harry Potter";
-  warble_->RegisterUser(user_name);
+  bool is_register_succeed = warble_->RegisterUser(user_name);
+  EXPECT_TRUE(is_register_succeed);
+}
+
+// Test: RegisterUser failed since duplicate username.
+// Expected: RegisterUser return value false.
+TEST_F(WarbleTest, RegisterUserWithDuplicateName) {
+  std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
+  std::string mock_user_followers_key = "user_followers_user_Harry Potter";
+  std::string mock_user_followings_key = "user_followings_user_Harry Potter";
+
+  StringVector mock_key_vector = {mock_user_warbles_key};
+  StringOptionalVector mock_user_warbles_value = {"Harry Potter"};
+  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
+      .Times(1)
+      .WillOnce(Return(mock_user_warbles_value));
+  std::string user_name = "Harry Potter";
+  bool is_register_succeed = warble_->RegisterUser(user_name);
+  EXPECT_FALSE(is_register_succeed);
 }
 
 // Test: user_name follow to_follow when both user_name and to_follow have empty profile
