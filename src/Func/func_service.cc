@@ -29,7 +29,7 @@ Status FuncServiceImpl::event(ServerContext *context, const EventRequest *reques
 void RunServer() {
   auto channel = grpc::CreateChannel("localhost:50000", grpc::InsecureChannelCredentials());
   StoragePtr storage_ptr = std::shared_ptr<KeyValueStoreClient>(new KeyValueStoreClient(channel));
-  WarblePtr warble_ptr = std::shared_ptr<Warble>(new Warble);
+  WarblePtr warble_ptr = std::shared_ptr<Warble>(new Warble(storage_ptr));
 
   std::string server_address("0.0.0.0:50001");
   FuncServiceImpl func_service(storage_ptr,warble_ptr);

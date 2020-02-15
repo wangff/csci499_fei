@@ -23,12 +23,13 @@ class MockStorage: public StorageAbstraction {
 class MockWarble: public Warble {
  public:
   // TODO
+  MockWarble(const StoragePtr &storage_ptr) : Warble(storage_ptr) {}
 };
 
 // Init the global variables for all the test cases in this test suite
 class FuncPlatformTest: public ::testing::Test {
  public:
-  FuncPlatformTest(): mock_store_(new MockStorage), mock_warble_(new MockWarble) {
+  FuncPlatformTest(): mock_store_(new MockStorage), mock_warble_(new MockWarble(mock_store_)) {
     auto platform = new FuncPlatform(mock_store_, mock_warble_);
     service_ = std::unique_ptr<FuncPlatform>(platform);
   }
