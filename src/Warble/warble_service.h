@@ -22,6 +22,8 @@ class Warble {
   std::string user_warbles_prefix = "user_warbles_";
   std::string user_followers_prefix = "user_followers_";
   std::string user_followings_prefix = "user_followings_";
+  std::string warble_prefix = "warble_";
+  std::string warble_thread_prefix = "warble_thread_";
 
   // Constructor with the parameter of StoragePtr.
   // StoragePtr used by Warble to communicate with KeyValueStore.
@@ -30,11 +32,9 @@ class Warble {
   // Register the given user_name
   bool RegisterUser(const std::string &user_name);
 
-  // TODO
   // Post a new warble or post a new warble as a reply,
   // and return the id of the new warble.
-  std::string WarbleText(const std::string &user_name, const std::string &text, const std::string &reply_to = nullptr);
-
+  std::string WarbleText(const std::string &user_name, const std::string &text, const StringOptional &reply_to);
   //Start following a given user
   void Follow(const std::string &user_name, const std::string &to_follow);
 

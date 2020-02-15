@@ -83,3 +83,50 @@ Profile Warble::ReadProfile(const std::string &user_name) {
   }
   return profile;
 }
+
+std::string Warble::WarbleText(const std::string &user_name, const std::string &text, const StringOptional &reply_to) {
+  // Create key vector
+  // 0: current warble id in the warble
+  // 1: warble list for user_name
+  // 2: Optional. warble list for reply_to
+  std::string current_warble_id_key = "current_warble_id";
+  std::string user_warble_key = user_warbles_prefix + user_prefix + user_name;
+  StringVector key_vector = {current_warble_id_key, user_warble_key};
+  std::string warble_thread_key;
+  if (reply_to != std::nullopt) {
+    warble_thread_key = warble_thread_prefix + warble_prefix + reply_to.value();
+    key_vector.push_back(warble_thread_key);
+  }
+
+  auto value_vector = kv_store_->Get(key_vector);
+  auto current_id = value_vector.at(0);
+
+  std::string new_warble_id = "1";
+  if (current_id != std::nullopt) {
+    new_warble_id = std::to_string(std::stoi(current_id.value()) + 1);
+  }
+
+  std::string warble_key = warble_prefix + new_warble_id;
+
+
+  auto user_warbles = value_vector.at(1);
+  std::string new_user_warbles = new_warble_id;
+  if(user_warbles != std::nullopt) {
+    new_user_warbles = user_warbles.value() +"," + new_user_warbles;
+  }
+
+  kv_store_->Put(current_warble_id_key, new_warble_id);
+  kv_store_->Put(warble_key,text);
+  kv_store_->Put(user_warble_key, new_user_warbles);
+
+  if(reply_to != std::nullopt) {
+    auto warble_thread = value_vector.at(2);
+    std::string new_warble_thread = new_warble_id;
+    if(warble_thread != std::nullopt) {
+      new_warble_thread = warble_thread.value() + "," + new_warble_thread;
+    }
+    kv_store_->Put(warble_thread_key, new_warble_thread);
+  }
+
+  return new_warble_id;
+}
