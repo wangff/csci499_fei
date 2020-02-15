@@ -123,7 +123,7 @@ TEST_F(WarbleTest, ReadProfileWithEmptyProfile) {
       .Times(1)
       .WillOnce(Return(mock_value_vector));
 
-  auto actual_profile = warble_->ReadProfile("Harry Potter");
+  Profile actual_profile = warble_->ReadProfile("Harry Potter");
   EXPECT_EQ(0,actual_profile.profile_followings.size());
   EXPECT_EQ(0,actual_profile.profile_followers.size());
 }
@@ -149,7 +149,7 @@ TEST_F(WarbleTest, ReadProfile) {
   expected_profile.profile_followers.push_back("follower2");
   expected_profile.profile_followers.push_back("follower3");
 
-  auto actual_profile = warble_->ReadProfile("Harry Potter");
+  Profile actual_profile = warble_->ReadProfile("Harry Potter");
   EXPECT_EQ(expected_profile.profile_followings.size(),expected_profile.profile_followings.size());
   EXPECT_EQ(expected_profile.profile_followers.size(),actual_profile.profile_followers.size());
 
@@ -167,23 +167,20 @@ TEST_F(WarbleTest, ReadProfile) {
 //           2. Append this warble id to the user_warbles list: key = "user_warbles_user_Harry Potter", value = "1";
 TEST_F(WarbleTest, WarbleFirstTextWithoutReply) {
   //mock get warble id
-  std::string mock_current_warble_id_key = "current_warble_id";
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
-  StringVector key_vector = {mock_current_warble_id_key, mock_user_warbles_key};
+  StringVector key_vector = {mock_user_warbles_key};
 
-  StringOptionalVector mock_value_vector = {StringOptional(), StringOptional()};
+  StringOptionalVector mock_value_vector = {StringOptional()};
   EXPECT_CALL(*mock_store_, Get(key_vector))
       .Times(1)
       .WillOnce(Return(mock_value_vector));
 
-
   std::string text = "It's my first warble.";
 
-  EXPECT_CALL(*mock_store_, Put(mock_current_warble_id_key,"1")).Times((1));
   EXPECT_CALL(*mock_store_, Put("warble_1", text)).Times(1);
   EXPECT_CALL(*mock_store_, Put(mock_user_warbles_key, "1")).Times(1);
 
-  auto warble_id = warble_->WarbleText("Harry Potter", "It's my first warble.", StringOptional());
+  std::string warble_id = warble_->WarbleText("Harry Potter", "It's my first warble.", StringOptional());
   EXPECT_EQ(warble_id, "1");
 }
 
@@ -193,53 +190,50 @@ TEST_F(WarbleTest, WarbleFirstTextWithoutReply) {
 //           2. Append this warble id to the user_warbles list: key = "user_warbles_user_Harry Potter", value = "1,100";
 //           3. Append this warble id to the warble_thread list: key = "warble_thread_warble_3", value = "100"
 TEST_F(WarbleTest, WarbleTextWithReplyAsFirstReply) {
-  //mock get warble id
-  std::string mock_current_warble_id_key = "current_warble_id";
+  //mock warble id
+  warble_->warble_id_ = 100;
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
   std::string mock_warble_thread_key = "warble_thread_warble_3";
-  StringVector key_vector = {mock_current_warble_id_key, mock_user_warbles_key, mock_warble_thread_key};
+  StringVector key_vector = {mock_user_warbles_key, mock_warble_thread_key};
 
-  StringOptionalVector mock_value_vector = {"99", "1", StringOptional()};
+  StringOptionalVector mock_value_vector = {"1", StringOptional()};
   EXPECT_CALL(*mock_store_, Get(key_vector))
       .Times(1)
       .WillOnce(Return(mock_value_vector));
 
-
   std::string text = "It's my second warble.";
 
-  EXPECT_CALL(*mock_store_, Put(mock_current_warble_id_key,"100")).Times((1));
   EXPECT_CALL(*mock_store_, Put("warble_100", text)).Times(1);
   EXPECT_CALL(*mock_store_, Put(mock_user_warbles_key, "1,100")).Times(1);
   EXPECT_CALL(*mock_store_, Put(mock_warble_thread_key, "100")).Times(1);
 
-  auto warble_id = warble_->WarbleText("Harry Potter", "It's my second warble.", StringOptional("3"));
+  std::string warble_id = warble_->WarbleText("Harry Potter", "It's my second warble.", StringOptional("3"));
   EXPECT_EQ(warble_id, "100");
 }
+
 // Test: a user warbles a new warble that is not his/her first warble,
 //       and this new warble is the reply to a current warble with some replies.
 // Expected: 1. Put a new record for this warble: key = "warble_100", value = "It's my second warble.".
 //           2. Append this warble id to the user_warbles list: key = "user_warbles_user_Harry Potter", value = "1,100";
 //           3. Append this warble id to the warble_thread list: key = "warble_thread_warble_3", value = "4,5,6,100"
 TEST_F(WarbleTest, WarbleTextWithReply) {
-  //mock get warble id
-  std::string mock_current_warble_id_key = "current_warble_id";
+  //mock warble id
+  warble_->warble_id_ = 100;
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
   std::string mock_warble_thread_key = "warble_thread_warble_3";
-  StringVector key_vector = {mock_current_warble_id_key, mock_user_warbles_key, mock_warble_thread_key};
+  StringVector key_vector = {mock_user_warbles_key, mock_warble_thread_key};
 
-  StringOptionalVector mock_value_vector = {"99", "1", "4,5,6"};
+  StringOptionalVector mock_value_vector = {"1", "4,5,6"};
   EXPECT_CALL(*mock_store_, Get(key_vector))
       .Times(1)
       .WillOnce(Return(mock_value_vector));
 
-
   std::string text = "It's my second warble.";
 
-  EXPECT_CALL(*mock_store_, Put(mock_current_warble_id_key,"100")).Times((1));
   EXPECT_CALL(*mock_store_, Put("warble_100", text)).Times(1);
   EXPECT_CALL(*mock_store_, Put(mock_user_warbles_key, "1,100")).Times(1);
   EXPECT_CALL(*mock_store_, Put(mock_warble_thread_key, "4,5,6,100")).Times(1);
 
-  auto warble_id = warble_->WarbleText("Harry Potter", "It's my second warble.", StringOptional("3"));
+  std::string warble_id = warble_->WarbleText("Harry Potter", "It's my second warble.", StringOptional("3"));
   EXPECT_EQ(warble_id, "100");
 }
