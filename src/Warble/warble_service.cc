@@ -49,11 +49,11 @@ void Warble::Follow(const std::string &user_name, const std::string &to_follow) 
   std::string new_to_follow_followers = user_name;
   std::string new_user_followings = to_follow;
 
-  if(user_followings != std::nullopt) {
+  if (user_followings != std::nullopt) {
     new_user_followings = user_followings.value() +"," + new_user_followings;
   }
 
-  if(to_follow_followers != std::nullopt) {
+  if (to_follow_followers != std::nullopt) {
     new_to_follow_followers = to_follow_followers.value() + "," + new_to_follow_followers;
   }
 
@@ -74,11 +74,11 @@ Profile Warble::ReadProfile(const std::string &user_name) {
 
   Profile profile;
 
-  if(user_followings != std::nullopt) {
+  if (user_followings != std::nullopt) {
     profile.profile_followings = deserialize(user_followings.value(),',');
   }
 
-  if(user_followers != std::nullopt) {
+  if (user_followers != std::nullopt) {
     profile.profile_followers = deserialize(user_followers.value(),',');
   }
   return profile;
@@ -104,17 +104,17 @@ std::string Warble::WarbleText(const std::string &user_name, const std::string &
 
   StringOptional user_warbles = value_vector.at(0);
   std::string new_user_warbles = current_warble_id;
-  if(user_warbles != std::nullopt) {
+  if (user_warbles != std::nullopt) {
     new_user_warbles = user_warbles.value() +"," + new_user_warbles;
   }
 
   kv_store_->Put(warble_key,text);
   kv_store_->Put(user_warble_key, new_user_warbles);
 
-  if(reply_to != std::nullopt) {
+  if (reply_to != std::nullopt) {
     StringOptional warble_thread = value_vector.at(1);
     std::string new_warble_thread = current_warble_id;
-    if(warble_thread != std::nullopt) {
+    if (warble_thread != std::nullopt) {
       new_warble_thread = warble_thread.value() + "," + new_warble_thread;
     }
     kv_store_->Put(warble_thread_key, new_warble_thread);
