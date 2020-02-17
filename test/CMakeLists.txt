@@ -38,6 +38,7 @@ add_executable(${BINARY} main.cc
         ${FUNC_TEST_SOURCES}
         ${CMAKE_SOURCE_DIR}/src/Func/func_platform.cc
         ${CMAKE_SOURCE_DIR}/src/Func/keyvaluestore_client.cc
+        ${CMAKE_SOURCE_DIR}/src/Warble/warble_service_abstraction.h
 
         ${KEYVALUESTORE_TEST_SOURCES}
         ${CMAKE_SOURCE_DIR}/src/KeyValueStore/threadsafe_map.cc
@@ -50,6 +51,7 @@ add_executable(${BINARY} main.cc
 # link generated pb library
 target_link_libraries(${BINARY} key_value_store_pb)
 target_link_libraries(${BINARY} func_pb)
+target_link_libraries(${BINARY} warble_pb)
 
 # other libraries we use
 target_link_libraries(${BINARY} glog::glog)
