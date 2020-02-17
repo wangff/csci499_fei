@@ -1,21 +1,10 @@
 #ifndef CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_H_
 #define CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_H_
 
-#include <memory>
-#include <string>
-
-#include <gtest/gtest_prod.h>
-
-#include "../Func/storage_abstraction.h"
-#include "profile.h"
-
-using StoragePtr = std::shared_ptr<StorageAbstraction>;
-using StringVector = std::vector<std::string>;
-using StringOptional = std::optional<std::string>;
-using StringOptionalVector = std::vector<StringOptional>;
+#include "warble_service_abstraction.h"
 
 // Warble application: a collection of handler functions to process users requests
-class Warble {
+class WarbleService : public WarbleServiceAbstraction {
  public:
   // Definition of all of keys' prefix
   const std::string kUserPrefix = "user_";
@@ -27,7 +16,7 @@ class Warble {
 
   // Constructor with the parameter of StoragePtr.
   // StoragePtr used by Warble to communicate with KeyValueStore.
-  Warble(const StoragePtr &storage_ptr) : kv_store_(storage_ptr) {};
+  explicit WarbleService(const StoragePtr &storage_ptr) : kv_store_(storage_ptr) {};
 
   // Register the given user_name
   bool RegisterUser(const std::string &user_name);
@@ -40,7 +29,7 @@ class Warble {
 
   // TODO
   // Read a warble thread from the given id
-  std::vector<std::string> ReadThread(const std::string &warble_id);
+//  std::vector<std::string> ReadThread(const std::string &warble_id);
 
   // Return the given user's following and followers
   Profile ReadProfile(const std::string &user_name);

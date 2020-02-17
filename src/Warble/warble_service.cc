@@ -15,7 +15,7 @@ StringVector deserialize(const std::string &s, char delim) {
   return res;
 }
 
-bool Warble::RegisterUser(const std::string &user_name) {
+bool WarbleService::RegisterUser(const std::string &user_name) {
   // Initialize user profile
   std::string user_warbles_key  = kUserWarblesPrefix + kUserPrefix + user_name;
   std::string user_followers_key = kUserFollowersPrefix + kUserPrefix + user_name;
@@ -35,7 +35,7 @@ bool Warble::RegisterUser(const std::string &user_name) {
   return true;
 }
 
-void Warble::Follow(const std::string &user_name, const std::string &to_follow) {
+void WarbleService::Follow(const std::string &user_name, const std::string &to_follow) {
   std::string user_followings_key = kUserFollowingsPrefix + kUserPrefix + user_name;
   std::string to_follow_followers_key = kUserFollowersPrefix + kUserPrefix + to_follow;
   StringVector key_vector;
@@ -61,7 +61,7 @@ void Warble::Follow(const std::string &user_name, const std::string &to_follow) 
   kv_store_->Put(to_follow_followers_key, new_to_follow_followers);
 }
 
-Profile Warble::ReadProfile(const std::string &user_name) {
+Profile WarbleService::ReadProfile(const std::string &user_name) {
   std::string user_followings_key = kUserFollowingsPrefix + kUserPrefix + user_name;
   std::string user_followers_key = kUserFollowersPrefix + kUserPrefix + user_name;
   StringVector key_vector;
@@ -84,7 +84,7 @@ Profile Warble::ReadProfile(const std::string &user_name) {
   return profile;
 }
 
-std::string Warble::WarbleText(const std::string &user_name, const std::string &text, const StringOptional &reply_to) {
+std::string WarbleService::WarbleText(const std::string &user_name, const std::string &text, const StringOptional &reply_to) {
   std::string current_warble_id = std::to_string(warble_id_);
   warble_id_++;
   // Create key vector
