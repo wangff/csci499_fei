@@ -107,8 +107,11 @@ TEST_F(FuncPlatformTest, ExecuteEvent2WithoutReply) {
   Payload reply_payload = service_->Execute(event_type, payload);
   reply_payload.UnpackTo(&reply);
   EXPECT_EQ(reply.descriptor()->field_count(),1);
+  // WarbleReply message should have one field: warble.
   Warble warble = reply.warble();
   EXPECT_EQ(warble.descriptor()->field_count(),5);
+  // Warble message should have fives fields:
+  // username; text; id; parent_id; timestamp;
   EXPECT_EQ(warble.username(), "Harry Potter");
   EXPECT_EQ(warble.text(),"It's my first warble.");
   EXPECT_EQ(warble.id(),"1");
@@ -134,8 +137,11 @@ TEST_F(FuncPlatformTest, ExecuteEvent2WithReply) {
   Payload reply_payload = service_->Execute(event_type, payload);
   reply_payload.UnpackTo(&reply);
   EXPECT_EQ(reply.descriptor()->field_count(),1);
+  // WarbleReply message should have one field: warble.
   Warble warble = reply.warble();
   EXPECT_EQ(warble.descriptor()->field_count(),5);
+  // Warble message should have fives fields:
+  // username; text; id; parent_id; timestamp;
   EXPECT_EQ(warble.username(), "Harry Potter");
   EXPECT_EQ(warble.text(),"It's my first warble.");
   EXPECT_EQ(warble.id(),"1");
@@ -195,4 +201,13 @@ TEST_F(FuncPlatformTest, ExecuteEvent5) {
   for(int i = 0; i < mock_profile.profile_followers.size(); i++) {
     EXPECT_EQ(reply.followers(i), mock_profile.profile_followers.at(i));
   }
+}
+
+// Test: Execute with event_type = 6, which does not exist in hooking configuration.
+// Expected: Execute function will return an empty payload.
+TEST_F(FuncPlatformTest, ExecuteEventNotExist) {
+  int event_type = 6;
+  Payload payload;
+  Payload reply_payload = service_->Execute(event_type, payload);
+  EXPECT_EQ(reply_payload.GetTypeName(), "google.protobuf.Any");
 }

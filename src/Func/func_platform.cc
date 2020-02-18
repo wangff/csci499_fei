@@ -15,8 +15,11 @@ void FuncPlatform::Unhook(const EventType &event_type) {
 
 // Execute handler function based on event type
 Payload FuncPlatform::Execute(const EventType &event_type, const Payload &payload) {
-  std::string function_str = hook_dict_.at(event_type);
   Payload reply_payload;
+  if (!hook_dict_.count(event_type)) {
+    return reply_payload;
+  }
+  std::string function_str = hook_dict_.at(event_type);
   if (function_str.find("register") != std::string::npos) {
     RegisteruserRequest request;
     payload.UnpackTo(&request);
