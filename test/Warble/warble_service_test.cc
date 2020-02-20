@@ -20,11 +20,11 @@ class MockStorage: public StorageAbstraction {
 // Init the global variables for all the test cases in this test suite
 class WarbleTest: public ::testing::Test {
  public:
-  WarbleTest(): mock_store_(new MockStorage) , warble_(new Warble(mock_store_)) {}
+  WarbleTest(): mock_store_(new MockStorage) , warble_(new WarbleService(mock_store_)) {}
  protected:
   // dependencies
   std::shared_ptr<MockStorage> mock_store_;
-  std::unique_ptr<Warble> warble_;
+  std::unique_ptr<WarbleService> warble_;
 };
 
 // Test: RegisterUser successfully initializes warble list, followers list, following list for the new user.

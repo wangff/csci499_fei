@@ -2,20 +2,38 @@
 #define CSCI499_FEI_SRC_FUNC_FUNC_PLATFORM_H_
 
 #include <string>
+#include <sys/time.h>
 #include <unordered_map>
 
 #include <google/protobuf/any.pb.h>
 #include <gtest/gtest_prod.h>
 
 #include "keyvaluestore_client.h"
+#include "../Warble/profile.h"
 #include "../Warble/warble_service.h"
+
+#include "Warble.grpc.pb.h"
+
+using google::protobuf::Any;
+using warble::Timestamp;
+using warble::Warble;
+using warble::RegisteruserRequest;
+using warble::RegisteruserReply;
+using warble::WarbleRequest;
+using warble::WarbleReply;
+using warble::FollowRequest;
+using warble::FollowReply;
+using warble::ReadRequest;
+using warble::ReadReply;
+using warble::ProfileRequest;
+using warble::ProfileReply;
 
 using EventType = unsigned int;
 using FunctionType = std::string;
 
 using Payload = ::google::protobuf::Any;
 using StoragePtr = std::shared_ptr<StorageAbstraction>;
-using WarblePtr = std::shared_ptr<Warble>;
+using WarblePtr = std::shared_ptr<WarbleServiceAbstraction>;
 using EventPairSet = std::unordered_map<EventType, FunctionType>;
 
 // Faas platform support three features:
