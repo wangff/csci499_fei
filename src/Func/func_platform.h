@@ -1,32 +1,31 @@
 #ifndef CSCI499_FEI_SRC_FUNC_FUNC_PLATFORM_H_
 #define CSCI499_FEI_SRC_FUNC_FUNC_PLATFORM_H_
 
-#include <string>
-#include <sys/time.h>
-#include <unordered_map>
-
 #include <google/protobuf/any.pb.h>
 #include <gtest/gtest_prod.h>
+#include <sys/time.h>
 
-#include "keyvaluestore_client.h"
+#include <string>
+#include <unordered_map>
+
 #include "../Warble/profile.h"
 #include "../Warble/warble_service.h"
-
 #include "Warble.grpc.pb.h"
+#include "keyvaluestore_client.h"
 
 using google::protobuf::Any;
+using warble::FollowReply;
+using warble::FollowRequest;
+using warble::ProfileReply;
+using warble::ProfileRequest;
+using warble::ReadReply;
+using warble::ReadRequest;
+using warble::RegisteruserReply;
+using warble::RegisteruserRequest;
 using warble::Timestamp;
 using warble::Warble;
-using warble::RegisteruserRequest;
-using warble::RegisteruserReply;
-using warble::WarbleRequest;
 using warble::WarbleReply;
-using warble::FollowRequest;
-using warble::FollowReply;
-using warble::ReadRequest;
-using warble::ReadReply;
-using warble::ProfileRequest;
-using warble::ProfileReply;
+using warble::WarbleRequest;
 
 using EventType = unsigned int;
 using FunctionType = std::string;
@@ -39,7 +38,8 @@ using EventPairSet = std::unordered_map<EventType, FunctionType>;
 // Faas platform support three features:
 // 1. Event Management: Registration and removal if installed
 // 2. Execute handler function in Warble.
-// 3. Use storage abstraction to access KeyValue Store to do Put, Get, Remove operations.
+// 3. Use storage abstraction to access KeyValue Store to do Put, Get, Remove
+// operations.
 class FuncPlatform {
  public:
   // Constructor with the injection of customized storage.
@@ -55,8 +55,10 @@ class FuncPlatform {
   Payload Execute(const EventType &, const Payload &);
 
   // Make private members could be accessed in unittest
-  FRIEND_TEST(FuncPlatformTest, shouldHaveHookConfigurationAfterhookEvetTypeAndFunctionStr);
-  FRIEND_TEST(FuncPlatformTest, shouldNotHaveHookConfigurationAfterUnhookEvetType);
+  FRIEND_TEST(FuncPlatformTest,
+              shouldHaveHookConfigurationAfterhookEvetTypeAndFunctionStr);
+  FRIEND_TEST(FuncPlatformTest,
+              shouldNotHaveHookConfigurationAfterUnhookEvetType);
 
  private:
   // Pointer of storage abstraction.
@@ -71,4 +73,4 @@ class FuncPlatform {
   EventPairSet hook_dict_;
 };
 
-#endif //CSCI499_FEI_SRC_FUNC_FUNC_PLATFORM_H_
+#endif  // CSCI499_FEI_SRC_FUNC_FUNC_PLATFORM_H_
