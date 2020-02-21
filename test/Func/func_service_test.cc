@@ -56,7 +56,7 @@ class FuncPlatformTest: public ::testing::Test {
 // Test: Hook will store the pair of event function in the local hashmap.
 // Expected: When we hook with event_type = 1; function_str = "function1",
 //           we expect the pair exists in the local hashmap.
-TEST_F(FuncPlatformTest, CanHook) {
+TEST_F(FuncPlatformTest, shouldHaveHookConfigurationAfterhookEvetTypeAndFunctionStr) {
   int event_type = 1;
   std::string function_str = "register";
   service_->Hook(event_type, function_str);
@@ -66,7 +66,7 @@ TEST_F(FuncPlatformTest, CanHook) {
 // Test: Unkook the mapping relationship between event and function.
 // Expected: When we unhook with event_type = 1,
 //           we expect nothing from the the local hashmap based on the event_type.
-TEST_F(FuncPlatformTest, CanUnhook) {
+TEST_F(FuncPlatformTest, shouldNotHaveHookConfigurationAfterUnhookEvetType) {
   int event_type = 1;
   service_->Unhook(event_type);
   EXPECT_EQ("",service_->hook_dict_[event_type]);
@@ -75,7 +75,7 @@ TEST_F(FuncPlatformTest, CanUnhook) {
 // Test: Execute with event_type = 1
 // Expected: warbler_service_ will call RegisterUser function
 //           Event function will return a payload with an empty RegisteruserReply
-TEST_F(FuncPlatformTest, ExecuteEvent1) {
+TEST_F(FuncPlatformTest, shouldReturnPayloadWithRegisteruserReplyWhenExectueEventType1) {
   int event_type = 1;
   RegisteruserRequest request;
   RegisteruserReply reply;
@@ -92,7 +92,7 @@ TEST_F(FuncPlatformTest, ExecuteEvent1) {
 // Test: Execute with event_type = 2 without reply to parent id.
 // Expected: warbler_service_ will call WarbleText function
 //           Event function will return a payload with an WarbleReply with the warble that has expected fields value.
-TEST_F(FuncPlatformTest, ExecuteEvent2WithoutReply) {
+TEST_F(FuncPlatformTest, shouldReturnPayloadWithWarbleReplyWhenExectueEventType2AndWarbleRequestWithoutReplyTo) {
   int event_type = 2;
   WarbleRequest request;
   WarbleReply reply;
@@ -121,7 +121,7 @@ TEST_F(FuncPlatformTest, ExecuteEvent2WithoutReply) {
 // Test: Execute with event_type = 2 with reply to parent id.
 // Expected: warbler_service_ will call WarbleText function
 //           Event function will return a payload with an WarbleReply with the warble that has expected fields value.
-TEST_F(FuncPlatformTest, ExecuteEvent2WithReply) {
+TEST_F(FuncPlatformTest, shouldReturnPayloadWithWarbleReplyWhenExectueEventType2AndWarbleRequestWithReplyTo) {
   int event_type = 2;
   WarbleRequest request;
   WarbleReply reply;
@@ -151,7 +151,7 @@ TEST_F(FuncPlatformTest, ExecuteEvent2WithReply) {
 // Test: Execute with event_type = 3
 // Expected: warbler_service_ will call Follow function
 //           Event function will return a payload with an empty FollowReply
-TEST_F(FuncPlatformTest, ExecuteEvent3) {
+TEST_F(FuncPlatformTest, shouldReturnPayloadWithFollowReplyWhenExectueEventType3) {
   int event_type = 3;
   FollowRequest request;
   FollowReply reply;
@@ -169,7 +169,7 @@ TEST_F(FuncPlatformTest, ExecuteEvent3) {
 // Test: Execute with event_type = 5
 // Expected: warbler_service_ will call ReadProfile function
 //           Event function will return a payload with an ProfileReply that has expected followings and followers.
-TEST_F(FuncPlatformTest, ExecuteEvent5) {
+TEST_F(FuncPlatformTest, shouldReturnPayloadWithProfileReplyWhenExectueEventType5) {
   int event_type = 5;
   ProfileRequest request;
   ProfileReply reply;
@@ -205,7 +205,7 @@ TEST_F(FuncPlatformTest, ExecuteEvent5) {
 
 // Test: Execute with event_type = 6, which does not exist in hooking configuration.
 // Expected: Execute function will return an empty payload.
-TEST_F(FuncPlatformTest, ExecuteEventNotExist) {
+TEST_F(FuncPlatformTest, shouldReturnEmptyPayloadWhenExecuteEventTypeNotExist) {
   int event_type = 6;
   Payload payload;
   Payload reply_payload = service_->Execute(event_type, payload);

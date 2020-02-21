@@ -55,8 +55,8 @@ class FuncPlatform {
   Payload Execute(const EventType &, const Payload &);
 
   // Make private members could be accessed in unittest
-  FRIEND_TEST(FuncPlatformTest, CanHook);
-  FRIEND_TEST(FuncPlatformTest, CanUnhook);
+  FRIEND_TEST(FuncPlatformTest, shouldHaveHookConfigurationAfterhookEvetTypeAndFunctionStr);
+  FRIEND_TEST(FuncPlatformTest, shouldNotHaveHookConfigurationAfterUnhookEvetType);
 
  private:
   // Pointer of storage abstraction.
