@@ -31,9 +31,9 @@ class WarbleServiceAbstraction {
   //Start following a given user
   virtual void Follow(const std::string &user_name, const std::string &to_follow) = 0;
 
-  // TODO
   // Read a warble thread from the given id
-//  virtual std::vector<std::string> ReadThread(const std::string &warble_id) = 0;
+  // Return the vector of the string serialization of Water protobuf
+  virtual StringVector ReadThread(const std::string &warble_id) = 0;
 
   // Return the given user's following and followers
   virtual Profile ReadProfile(const std::string &user_name) = 0;

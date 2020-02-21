@@ -122,3 +122,28 @@ std::string WarbleService::WarbleText(const std::string &user_name, const std::s
 
   return current_warble_id;
 }
+
+StringVector WarbleService::ReadThread(const std::string &warble_id) {
+  StringVector warbles_str_vector;
+  std::string warble_thread_key = kWarbleThreadPrefix + kWarblePrefix + warble_id;
+  StringVector key_vector = {warble_thread_key};
+  StringOptional warble_ids_opt = kv_store_->Get(key_vector).at(0);
+  std::string warble_ids_str = "";
+  if (warble_ids_opt != std::nullopt && warble_ids_opt.has_value()) {
+    warble_ids_str = warble_ids_opt.value();
+  }
+  if (warble_ids_str.empty()) {
+    return warbles_str_vector;
+  }
+  StringVector warble_ids_vector = deserialize(warble_ids_str,',');
+  key_vector.clear();
+  for(auto s: warble_ids_vector) {
+    key_vector.push_back(kWarblePrefix+s);
+  }
+  StringOptionalVector warbles_opt_vector = kv_store_->Get(key_vector);
+  for(auto op: warbles_opt_vector) {
+    warbles_str_vector.push_back(op.value());
+  }
+
+  return warbles_str_vector;
+}

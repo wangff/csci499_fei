@@ -237,3 +237,54 @@ TEST_F(WarbleTest, WarbleTextWithReply) {
   std::string warble_id = warble_->WarbleText("Harry Potter", "It's my second warble.", StringOptional("3"));
   EXPECT_EQ(warble_id, "100");
 }
+
+// Test: ReadThread of a warble with id "123" that has no replies.
+// Expected: Expect call KeyValueStore Get function once with the key "warble_thread_warble_123"
+//           ReadThread function return the empty vector of strings
+TEST_F(WarbleTest, ReadThreadWithoutReply) {
+  std::string mock_warble_thread_key = "warble_thread_warble_123";
+  StringVector mock_key_vector = {mock_warble_thread_key};
+  StringOptionalVector mock_value_vector = {StringOptional()};
+
+  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
+         .Times(1)
+         .WillOnce(Return(mock_value_vector));
+
+  StringVector warbles = warble_->ReadThread("123");
+  EXPECT_TRUE(warbles.empty());
+}
+
+// Test: ReadThread of a warble with id "123" that has replies.
+// Expected: Expect call KeyValueStore Get function twice
+//           First call with the input key vector {"warble_thread_warble_123"}
+//           Second call with the input key vecotr {"warble_1", "warble_2", "warble_3"}
+//           ReadThread function return the vector within three strings
+TEST_F(WarbleTest, ReadThreadWithReplies) {
+  std::string mock_warble_thread_key = "warble_thread_warble_123";
+  StringVector mock_key_vector = {mock_warble_thread_key};
+  StringOptionalVector mock_value_vector = {"1,2,3"};
+
+  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
+      .Times(1)
+      .WillOnce(Return(mock_value_vector));
+
+  mock_key_vector.clear();
+  mock_key_vector.push_back("warble_1");
+  mock_key_vector.push_back("warble_2");
+  mock_key_vector.push_back("warble_3");
+
+  mock_value_vector.clear();
+  mock_value_vector.push_back("It is the first warble.");
+  mock_value_vector.push_back("It is the second warble.");
+  mock_value_vector.push_back("It is the third warble.");
+
+  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
+      .Times(1)
+      .WillOnce(Return(mock_value_vector));
+
+  StringVector warbles = warble_->ReadThread("123");
+  EXPECT_EQ(warbles.size(), 3);
+  EXPECT_EQ(warbles.at(0), "It is the first warble.");
+  EXPECT_EQ(warbles.at(1), "It is the second warble.");
+  EXPECT_EQ(warbles.at(2), "It is the third warble.");
+}
