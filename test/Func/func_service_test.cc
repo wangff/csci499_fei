@@ -211,3 +211,76 @@ TEST_F(FuncPlatformTest, ExecuteEventNotExist) {
   Payload reply_payload = service_->Execute(event_type, payload);
   EXPECT_EQ(reply_payload.GetTypeName(), "google.protobuf.Any");
 }
+
+// Test: Execute with event_type = 4 and the parameter warble_id which has no replies.
+// Expected: warble_service will call ReadThread function.
+//           and will return an empty vector of warbles
+TEST_F(FuncPlatformTest, shouldReturnEmptyVectorOfWarbleWhenCallExecuteWithEvetType4AndWarbleIdWithoutAnyReplies) {
+  int event_type = 4;
+  ReadRequest request;
+  ReadReply reply;
+  request.set_warble_id("1");
+  Payload payload;
+  payload.PackFrom(request);
+
+  StringVector mock_warbles_as_str;
+
+  EXPECT_CALL(*mock_warble_, ReadThread("1"))
+            .Times(1)
+            .WillOnce(Return(mock_warbles_as_str));
+
+  Payload reply_payload = service_->Execute(event_type, payload);
+  reply_payload.UnpackTo(&reply);
+  EXPECT_TRUE(reply.warbles().empty());
+}
+
+// Test: Execute with event_type = 4 and the parameter warble_id which has no replies.
+// Expected: warble_service will call ReadThread function.
+//           and will return an empty vector of warbles
+TEST_F(FuncPlatformTest, shouldReturnVectorOfWarbleWhenCallExecuteWithEvetType4AndWarbleIdWithReplies) {
+  int event_type = 4;
+  ReadRequest request;
+  ReadReply reply;
+  request.set_warble_id("2");
+  Payload payload;
+  payload.PackFrom(request);
+
+  std::vector<Warble> mock_warbles;
+  StringVector mock_warbles_as_str;
+
+  for (int i = 3; i < 6; i++) {
+    Warble warble;
+    timeval time;
+    gettimeofday(&time,NULL);
+    std::string suffix = std::to_string(i);
+    warble.set_username("username"+suffix);
+    warble.set_text("I my warble No. "+suffix);
+    warble.set_id(suffix);
+    warble.set_parent_id("2");
+    warble.mutable_timestamp()->set_seconds(time.tv_sec);
+    warble.mutable_timestamp()->set_useconds(time.tv_usec);
+    mock_warbles.push_back(warble);
+    mock_warbles_as_str.push_back(warble.SerializeAsString());
+  }
+
+  EXPECT_CALL(*mock_warble_, ReadThread("2"))
+      .Times(1)
+      .WillOnce(Return(mock_warbles_as_str));
+
+  Payload reply_payload = service_->Execute(event_type, payload);
+  reply_payload.UnpackTo(&reply);
+
+  EXPECT_EQ(std::to_string(reply.warbles_size()),std::to_string(mock_warbles.size()));
+
+  for (int i = 0; i < reply.warbles_size(); i++) {
+    Warble actual_warble = reply.warbles().Get(0);
+    Warble expected_warble = mock_warbles.at(0);
+
+    EXPECT_EQ(actual_warble.username(), expected_warble.username());
+    EXPECT_EQ(actual_warble.text(), expected_warble.text());
+    EXPECT_EQ(actual_warble.id(), expected_warble.id());
+    EXPECT_EQ(actual_warble.parent_id(), expected_warble.parent_id());
+    EXPECT_EQ(actual_warble.timestamp().seconds(), expected_warble.timestamp().seconds());
+    EXPECT_EQ(actual_warble.timestamp().useconds(), expected_warble.timestamp().useconds());
+  }
+}

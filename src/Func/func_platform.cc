@@ -59,9 +59,16 @@ Payload FuncPlatform::Execute(const EventType &event_type, const Payload &payloa
     reply_payload.PackFrom(reply);
   }
   else if (function_str.find("read") != std::string::npos) {
-    // TODO
-    // Will implement ReadThread in Warble first.
-    // Then implement this condition.
+    ReadRequest request;
+    payload.UnpackTo(&request);
+    ReadReply reply;
+    std::string warble_id = request.warble_id();
+    StringVector warbles_as_str = warble_service_->ReadThread(warble_id);
+    for (auto s: warbles_as_str) {
+      auto w = reply.add_warbles();
+      w->ParseFromString(s);
+    }
+    reply_payload.PackFrom(reply);
   }
   else if (function_str.find("profile") != std::string::npos) {
     ProfileRequest request;
