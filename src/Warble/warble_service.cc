@@ -1,15 +1,15 @@
 #include "warble_service.h"
 
 #include <iostream>
-#include <string>
 #include <sstream>
+#include <string>
 
 // Helper function: split string by delimiter
 StringVector deserialize(const std::string &s, char delim) {
   std::istringstream iss(s);
   std::string item;
   StringVector res;
-  while(getline(iss,item,delim)) {
+  while (getline(iss, item, delim)) {
     res.push_back(item);
   }
   return res;
@@ -17,9 +17,11 @@ StringVector deserialize(const std::string &s, char delim) {
 
 bool WarbleService::RegisterUser(const std::string &user_name) {
   // Initialize user profile
-  std::string user_warbles_key  = kUserWarblesPrefix + kUserPrefix + user_name;
-  std::string user_followers_key = kUserFollowersPrefix + kUserPrefix + user_name;
-  std::string user_followings_key = kUserFollowingsPrefix + kUserPrefix + user_name;
+  std::string user_warbles_key = kUserWarblesPrefix + kUserPrefix + user_name;
+  std::string user_followers_key =
+      kUserFollowersPrefix + kUserPrefix + user_name;
+  std::string user_followings_key =
+      kUserFollowingsPrefix + kUserPrefix + user_name;
   StringVector keys_vector = {user_warbles_key};
   StringOptional user_warbles = kv_store_->Get(keys_vector).at(0);
   bool is_user_exist = false;
@@ -35,9 +37,12 @@ bool WarbleService::RegisterUser(const std::string &user_name) {
   return true;
 }
 
-void WarbleService::Follow(const std::string &user_name, const std::string &to_follow) {
-  std::string user_followings_key = kUserFollowingsPrefix + kUserPrefix + user_name;
-  std::string to_follow_followers_key = kUserFollowersPrefix + kUserPrefix + to_follow;
+void WarbleService::Follow(const std::string &user_name,
+                           const std::string &to_follow) {
+  std::string user_followings_key =
+      kUserFollowingsPrefix + kUserPrefix + user_name;
+  std::string to_follow_followers_key =
+      kUserFollowersPrefix + kUserPrefix + to_follow;
   StringVector key_vector;
   key_vector.push_back(user_followings_key);
   key_vector.push_back(to_follow_followers_key);
@@ -50,11 +55,12 @@ void WarbleService::Follow(const std::string &user_name, const std::string &to_f
   std::string new_user_followings = to_follow;
 
   if (user_followings != std::nullopt) {
-    new_user_followings = user_followings.value() +"," + new_user_followings;
+    new_user_followings = user_followings.value() + "," + new_user_followings;
   }
 
   if (to_follow_followers != std::nullopt) {
-    new_to_follow_followers = to_follow_followers.value() + "," + new_to_follow_followers;
+    new_to_follow_followers =
+        to_follow_followers.value() + "," + new_to_follow_followers;
   }
 
   kv_store_->Put(user_followings_key, new_user_followings);
@@ -62,8 +68,10 @@ void WarbleService::Follow(const std::string &user_name, const std::string &to_f
 }
 
 Profile WarbleService::ReadProfile(const std::string &user_name) {
-  std::string user_followings_key = kUserFollowingsPrefix + kUserPrefix + user_name;
-  std::string user_followers_key = kUserFollowersPrefix + kUserPrefix + user_name;
+  std::string user_followings_key =
+      kUserFollowingsPrefix + kUserPrefix + user_name;
+  std::string user_followers_key =
+      kUserFollowersPrefix + kUserPrefix + user_name;
   StringVector key_vector;
   key_vector.push_back(user_followings_key);
   key_vector.push_back(user_followers_key);
@@ -75,16 +83,18 @@ Profile WarbleService::ReadProfile(const std::string &user_name) {
   Profile profile;
 
   if (user_followings != std::nullopt) {
-    profile.profile_followings = deserialize(user_followings.value(),',');
+    profile.profile_followings = deserialize(user_followings.value(), ',');
   }
 
   if (user_followers != std::nullopt) {
-    profile.profile_followers = deserialize(user_followers.value(),',');
+    profile.profile_followers = deserialize(user_followers.value(), ',');
   }
   return profile;
 }
 
-std::string WarbleService::WarbleText(const std::string &user_name, const std::string &text, const StringOptional &reply_to) {
+std::string WarbleService::WarbleText(const std::string &user_name,
+                                      const std::string &text,
+                                      const StringOptional &reply_to) {
   std::string current_warble_id = std::to_string(warble_id_);
   warble_id_++;
   // Create key vector
@@ -105,10 +115,10 @@ std::string WarbleService::WarbleText(const std::string &user_name, const std::s
   StringOptional user_warbles = value_vector.at(0);
   std::string new_user_warbles = current_warble_id;
   if (user_warbles != std::nullopt) {
-    new_user_warbles = user_warbles.value() +"," + new_user_warbles;
+    new_user_warbles = user_warbles.value() + "," + new_user_warbles;
   }
 
-  kv_store_->Put(warble_key,text);
+  kv_store_->Put(warble_key, text);
   kv_store_->Put(user_warble_key, new_user_warbles);
 
   if (reply_to != std::nullopt) {
@@ -125,7 +135,8 @@ std::string WarbleService::WarbleText(const std::string &user_name, const std::s
 
 StringVector WarbleService::ReadThread(const std::string &warble_id) {
   StringVector warbles_str_vector;
-  std::string warble_thread_key = kWarbleThreadPrefix + kWarblePrefix + warble_id;
+  std::string warble_thread_key =
+      kWarbleThreadPrefix + kWarblePrefix + warble_id;
   StringVector key_vector = {warble_thread_key};
   StringOptional warble_ids_opt = kv_store_->Get(key_vector).at(0);
   std::string warble_ids_str = "";
@@ -135,13 +146,13 @@ StringVector WarbleService::ReadThread(const std::string &warble_id) {
   if (warble_ids_str.empty()) {
     return warbles_str_vector;
   }
-  StringVector warble_ids_vector = deserialize(warble_ids_str,',');
+  StringVector warble_ids_vector = deserialize(warble_ids_str, ',');
   key_vector.clear();
-  for(auto s: warble_ids_vector) {
-    key_vector.push_back(kWarblePrefix+s);
+  for (auto s : warble_ids_vector) {
+    key_vector.push_back(kWarblePrefix + s);
   }
   StringOptionalVector warbles_opt_vector = kv_store_->Get(key_vector);
-  for(auto op: warbles_opt_vector) {
+  for (auto op : warbles_opt_vector) {
     warbles_str_vector.push_back(op.value());
   }
 
