@@ -24,10 +24,9 @@ bool WarbleService::RegisterUser(const std::string &user_name) {
       kUserFollowingsPrefix + kUserPrefix + user_name;
   StringVector keys_vector = {user_warbles_key};
   StringOptional user_warbles = kv_store_->Get(keys_vector).at(0);
-  bool is_user_exist = false;
-  if (user_warbles != std::nullopt) {
-    is_user_exist = true;
-  }
+
+  bool is_user_exist = user_warbles != std::nullopt;
+
   if (is_user_exist) {
     return false;
   }
