@@ -25,7 +25,7 @@ class MockWarble : public WarbleServiceAbstraction {
   MOCK_METHOD1(RegisterUser, bool(const std::string &user_name));
   MOCK_METHOD3(WarbleText, std::string(const std::string &user_name, const std::string &text, const StringOptional &reply_to));
   MOCK_METHOD2(Follow, void(const std::string &user_name, const std::string &to_follow));
-//  MOCK_METHOD1(ReadThread, std::vector<std::string>(const std::string &warble_id));
+  MOCK_METHOD1(ReadThread, StringVector(const std::string &warble_id));
   MOCK_METHOD1(ReadProfile, Profile(const std::string &user_name));
 };
 

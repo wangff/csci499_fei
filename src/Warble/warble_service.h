@@ -24,19 +24,20 @@ class WarbleService : public WarbleServiceAbstraction {
   // Post a new warble or post a new warble as a reply,
   // and return the id of the new warble.
   std::string WarbleText(const std::string &user_name, const std::string &text, const StringOptional &reply_to);
+
   //Start following a given user
   void Follow(const std::string &user_name, const std::string &to_follow);
 
-  // TODO
-  // Read a warble thread from the given id
-//  std::vector<std::string> ReadThread(const std::string &warble_id);
+  // Read a warble thread from the given id.
+  // Return the vector of the string serialization of Warble protobuf.
+  StringVector ReadThread(const std::string &warble_id);
 
   // Return the given user's following and followers
   Profile ReadProfile(const std::string &user_name);
 
   // Make the private member accessible by test.
-  FRIEND_TEST(WarbleTest, WarbleTextWithReplyAsFirstReply);
-  FRIEND_TEST(WarbleTest, WarbleTextWithReply);
+  FRIEND_TEST(WarbleTest, shouldReturnNewWarbleIdWhenWarbleATextReplyToAnotherWarbleWithouReplies);
+  FRIEND_TEST(WarbleTest, shouldReturnNewWarbleIdWhenWarbleATextToReplyToAnotherWarbleWithReplies);
 
  private:
   // Pointer of storage abstraction.

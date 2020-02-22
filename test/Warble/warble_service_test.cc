@@ -31,7 +31,7 @@ class WarbleTest: public ::testing::Test {
 //       and the username has not been registered.
 // Expected: RegisterUser will call KeyValueStore Put function three times will corresponding key and empty value.
 //           RegisterUser return value true.
-TEST_F(WarbleTest, RegisterUserSuccessfully) {
+TEST_F(WarbleTest, shouldSucceedWhenRegisterANewUserName) {
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
   std::string mock_user_followers_key = "user_followers_user_Harry Potter";
   std::string mock_user_followings_key = "user_followings_user_Harry Potter";
@@ -51,7 +51,7 @@ TEST_F(WarbleTest, RegisterUserSuccessfully) {
 
 // Test: RegisterUser failed since duplicate username.
 // Expected: RegisterUser return value false.
-TEST_F(WarbleTest, RegisterUserWithDuplicateName) {
+TEST_F(WarbleTest, shouldFailWhenRegisterADuplicateUserName) {
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
   std::string mock_user_followers_key = "user_followers_user_Harry Potter";
   std::string mock_user_followings_key = "user_followings_user_Harry Potter";
@@ -70,7 +70,7 @@ TEST_F(WarbleTest, RegisterUserWithDuplicateName) {
 // Expected: Follow call KeyValueStore Put function twice.
 //           Put to_follower in user_name's followings list.
 //           Put user_name in to_follow's followers list.
-TEST_F(WarbleTest, FollowWithEmptyProfile) {
+TEST_F(WarbleTest, shouldAppendCurrentUserAndToFollowToEachOtherProfileWhenCurrentUserFollowToFollowAndBothOFThemHasNoProfiles) {
   std::string user_followings_key = "user_followings_user_Harry Potter";
   std::string to_follow_followers_key = "user_followers_user_Lord Voldmort";
 
@@ -92,7 +92,7 @@ TEST_F(WarbleTest, FollowWithEmptyProfile) {
 // Expected: Follow call KeyValueStore Put function twice.
 //           Put to_follower in user_name's followings list.
 //           Put user_name in to_follow's followers list.
-TEST_F(WarbleTest, FollowWithProfile) {
+TEST_F(WarbleTest, shouldAppendCurrentUserAndToFollowToEachOtherProfileWhenCurrentUserFollowToFollowAndBothOFThemHasProfiles) {
   std::string user_followings_key = "user_followings_user_Harry Potter";
   std::string to_follow_followers_key = "user_followers_user_Lord Voldmort";
 
@@ -112,7 +112,7 @@ TEST_F(WarbleTest, FollowWithProfile) {
 
 // Test: Read user's profile that is empty.
 // Expected: The return profile with empty followings vector and followers vector.
-TEST_F(WarbleTest, ReadProfileWithEmptyProfile) {
+TEST_F(WarbleTest, shouldReturnEmptyProfileWhenReadProfileOfAUserWithoutAnyFollowerOrFollowing) {
   std::string user_followings_key = "user_followings_user_Harry Potter";
   std::string to_follow_followers_key = "user_followers_user_Harry Potter";
   StringVector mock_key_vector = {user_followings_key, to_follow_followers_key};
@@ -130,7 +130,7 @@ TEST_F(WarbleTest, ReadProfileWithEmptyProfile) {
 
 // Test: Read user's profile that is not empty.
 // Expected: The return profile is as expected.
-TEST_F(WarbleTest, ReadProfile) {
+TEST_F(WarbleTest, shouldReturnProfileWhenReadProfileOfAUserWithAnyFollowerOrFollowing) {
   std::string user_followings_key = "user_followings_user_Harry Potter";
   std::string to_follow_followers_key = "user_followers_user_Harry Potter";
 
@@ -165,7 +165,7 @@ TEST_F(WarbleTest, ReadProfile) {
 // Test: a user warbles his/her first warble without reply to any warbles.
 // Expected: 1. Put a new record for this warble: key = "warble_1", value = "It's my first warble.".
 //           2. Append this warble id to the user_warbles list: key = "user_warbles_user_Harry Potter", value = "1";
-TEST_F(WarbleTest, WarbleFirstTextWithoutReply) {
+TEST_F(WarbleTest, shouldReturnNewWarbleIdWhenUserWarbleTheFirstWarbleWithoutReplyTo) {
   //mock get warble id
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
   StringVector key_vector = {mock_user_warbles_key};
@@ -189,7 +189,7 @@ TEST_F(WarbleTest, WarbleFirstTextWithoutReply) {
 // Expected: 1. Put a new record for this warble: key = "warble_100", value = "It's my second warble.".
 //           2. Append this warble id to the user_warbles list: key = "user_warbles_user_Harry Potter", value = "1,100";
 //           3. Append this warble id to the warble_thread list: key = "warble_thread_warble_3", value = "100"
-TEST_F(WarbleTest, WarbleTextWithReplyAsFirstReply) {
+TEST_F(WarbleTest, shouldReturnNewWarbleIdWhenWarbleATextReplyToAnotherWarbleWithouReplies) {
   //mock warble id
   warble_->warble_id_ = 100;
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
@@ -216,7 +216,7 @@ TEST_F(WarbleTest, WarbleTextWithReplyAsFirstReply) {
 // Expected: 1. Put a new record for this warble: key = "warble_100", value = "It's my second warble.".
 //           2. Append this warble id to the user_warbles list: key = "user_warbles_user_Harry Potter", value = "1,100";
 //           3. Append this warble id to the warble_thread list: key = "warble_thread_warble_3", value = "4,5,6,100"
-TEST_F(WarbleTest, WarbleTextWithReply) {
+TEST_F(WarbleTest, shouldReturnNewWarbleIdWhenWarbleATextToReplyToAnotherWarbleWithReplies) {
   //mock warble id
   warble_->warble_id_ = 100;
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
@@ -236,4 +236,55 @@ TEST_F(WarbleTest, WarbleTextWithReply) {
 
   std::string warble_id = warble_->WarbleText("Harry Potter", "It's my second warble.", StringOptional("3"));
   EXPECT_EQ(warble_id, "100");
+}
+
+// Test: ReadThread of a warble with id "123" that has no replies.
+// Expected: Expect call KeyValueStore Get function once with the key "warble_thread_warble_123"
+//           ReadThread function return the empty vector of strings
+TEST_F(WarbleTest, shouldReturnEmptyStringVectorWhenReadThreadOfWarbleWithoutAnyReplies) {
+  std::string mock_warble_thread_key = "warble_thread_warble_123";
+  StringVector mock_key_vector = {mock_warble_thread_key};
+  StringOptionalVector mock_value_vector = {StringOptional()};
+
+  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
+         .Times(1)
+         .WillOnce(Return(mock_value_vector));
+
+  StringVector warbles = warble_->ReadThread("123");
+  EXPECT_TRUE(warbles.empty());
+}
+
+// Test: ReadThread of a warble with id "123" that has replies.
+// Expected: Expect call KeyValueStore Get function twice
+//           First call with the input key vector {"warble_thread_warble_123"}
+//           Second call with the input key vecotr {"warble_1", "warble_2", "warble_3"}
+//           ReadThread function return the vector within three strings
+TEST_F(WarbleTest, shouldReturnTheStringVectorOfRepliesWhenReadThreadOfWarbleHasSomeReplies) {
+  std::string mock_warble_thread_key = "warble_thread_warble_123";
+  StringVector mock_key_vector = {mock_warble_thread_key};
+  StringOptionalVector mock_value_vector = {"1,2,3"};
+
+  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
+      .Times(1)
+      .WillOnce(Return(mock_value_vector));
+
+  mock_key_vector.clear();
+  mock_key_vector.push_back("warble_1");
+  mock_key_vector.push_back("warble_2");
+  mock_key_vector.push_back("warble_3");
+
+  mock_value_vector.clear();
+  mock_value_vector.push_back("It is the first warble.");
+  mock_value_vector.push_back("It is the second warble.");
+  mock_value_vector.push_back("It is the third warble.");
+
+  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
+      .Times(1)
+      .WillOnce(Return(mock_value_vector));
+
+  StringVector warbles = warble_->ReadThread("123");
+  EXPECT_EQ(warbles.size(), 3);
+  EXPECT_EQ(warbles.at(0), "It is the first warble.");
+  EXPECT_EQ(warbles.at(1), "It is the second warble.");
+  EXPECT_EQ(warbles.at(2), "It is the third warble.");
 }
