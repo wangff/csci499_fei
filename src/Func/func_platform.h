@@ -1,17 +1,20 @@
 #ifndef CSCI499_FEI_SRC_FUNC_FUNC_PLATFORM_H_
 #define CSCI499_FEI_SRC_FUNC_FUNC_PLATFORM_H_
 
-#include <google/protobuf/any.pb.h>
-#include <gtest/gtest_prod.h>
+#include "keyvaluestore_client.h"
+
 #include <sys/time.h>
 
 #include <string>
 #include <unordered_map>
 
+#include <google/protobuf/any.pb.h>
+#include <gtest/gtest_prod.h>
+
+#include "function_str.h"
 #include "../Warble/profile.h"
 #include "../Warble/warble_service.h"
 #include "Warble.grpc.pb.h"
-#include "keyvaluestore_client.h"
 
 using google::protobuf::Any;
 using warble::FollowReply;
@@ -41,7 +44,7 @@ using EventPairSet = std::unordered_map<EventType, FunctionType>;
 // 3. Use storage abstraction to access KeyValue Store to do Put, Get, Remove
 // operations.
 class FuncPlatform {
- public:
+public:
   // Constructor with the injection of customized storage.
   FuncPlatform(const StoragePtr &, const WarblePtr &);
 
@@ -60,7 +63,7 @@ class FuncPlatform {
   FRIEND_TEST(FuncPlatformTest,
               shouldNotHaveHookConfigurationAfterUnhookEvetType);
 
- private:
+private:
   // Pointer of storage abstraction.
   // Used to access the KeyValue storage.
   StoragePtr kv_store_;
@@ -73,4 +76,4 @@ class FuncPlatform {
   EventPairSet hook_dict_;
 };
 
-#endif  // CSCI499_FEI_SRC_FUNC_FUNC_PLATFORM_H_
+#endif // CSCI499_FEI_SRC_FUNC_FUNC_PLATFORM_H_

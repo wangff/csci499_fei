@@ -22,14 +22,14 @@ Payload FuncPlatform::Execute(const EventType &event_type,
     return reply_payload;
   }
   std::string function_str = hook_dict_.at(event_type);
-  if (function_str.find("register") != std::string::npos) {
+  if (function_str.find(kFunctionRegister) != std::string::npos) {
     RegisteruserRequest request;
     payload.UnpackTo(&request);
     RegisteruserReply reply;
     std::string user_name = request.username();
     warble_service_->RegisterUser(user_name);
     reply_payload.PackFrom(reply);
-  } else if (function_str.find("warble") != std::string::npos) {
+  } else if (function_str.find(kFunctionWarble) != std::string::npos) {
     timeval time;
     gettimeofday(&time, NULL);
 
@@ -50,7 +50,7 @@ Payload FuncPlatform::Execute(const EventType &event_type,
     reply.mutable_warble()->mutable_timestamp()->set_seconds(time.tv_sec);
     reply.mutable_warble()->mutable_timestamp()->set_useconds(time.tv_usec);
     reply_payload.PackFrom(reply);
-  } else if (function_str.find("follow") != std::string::npos) {
+  } else if (function_str.find(kFunctionFollow) != std::string::npos) {
     FollowRequest request;
     payload.UnpackTo(&request);
     FollowReply reply;
@@ -58,7 +58,7 @@ Payload FuncPlatform::Execute(const EventType &event_type,
     std::string to_follow = request.to_follow();
     warble_service_->Follow(user_name, to_follow);
     reply_payload.PackFrom(reply);
-  } else if (function_str.find("read") != std::string::npos) {
+  } else if (function_str.find(kFunctionRead) != std::string::npos) {
     ReadRequest request;
     payload.UnpackTo(&request);
     ReadReply reply;
@@ -69,7 +69,7 @@ Payload FuncPlatform::Execute(const EventType &event_type,
       w->ParseFromString(s);
     }
     reply_payload.PackFrom(reply);
-  } else if (function_str.find("profile") != std::string::npos) {
+  } else if (function_str.find(kFunctionProfile) != std::string::npos) {
     ProfileRequest request;
     payload.UnpackTo(&request);
     ProfileReply reply;
