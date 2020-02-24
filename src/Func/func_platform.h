@@ -5,13 +5,15 @@
 
 #include <sys/time.h>
 
+#include <functional>
+#include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 
 #include <google/protobuf/any.pb.h>
 #include <gtest/gtest_prod.h>
 
-#include "function_str.h"
 #include "../Warble/profile.h"
 #include "../Warble/warble_service.h"
 #include "Warble.grpc.pb.h"
@@ -30,13 +32,40 @@ using warble::Warble;
 using warble::WarbleReply;
 using warble::WarbleRequest;
 
-using EventType = unsigned int;
-using FunctionType = std::string;
-
 using Payload = ::google::protobuf::Any;
+using PayloadOptional = std::optional<Payload>;
 using StoragePtr = std::shared_ptr<StorageAbstraction>;
 using WarblePtr = std::shared_ptr<WarbleServiceAbstraction>;
-using EventPairSet = std::unordered_map<EventType, FunctionType>;
+
+using EventType = unsigned int;
+using FunctionName = std::string;
+using FunctionType =
+    std::function<Payload(WarbleServiceAbstraction &, Payload)>;
+
+using EventFuncNameMap = std::unordered_map<unsigned int, std::string>;
+using StrFuncPair = std::unordered_map<std::string, FunctionType>;
+
+const std::string kFunctionRegister = "register";
+const std::string kFunctionWarble = "warble";
+const std::string kFunctionFollow = "follow";
+const std::string kFunctionRead = "read";
+const std::string kFunctionProfile = "profile";
+
+const StrFuncPair kFunctionMap = {
+    {kFunctionRegister,
+     std::function<Payload(WarbleServiceAbstraction &, Payload)>(
+         &WarbleServiceAbstraction::RegisterUser)},
+    {kFunctionWarble,
+     std::function<Payload(WarbleServiceAbstraction &, Payload)>(
+         &WarbleServiceAbstraction::WarbleText)},
+    {kFunctionFollow,
+     std::function<Payload(WarbleServiceAbstraction &, Payload)>(
+         &WarbleServiceAbstraction::Follow)},
+    {kFunctionRead, std::function<Payload(WarbleServiceAbstraction &, Payload)>(
+                        &WarbleServiceAbstraction::ReadThread)},
+    {kFunctionProfile,
+     std::function<Payload(WarbleServiceAbstraction &, Payload)>(
+         &WarbleServiceAbstraction::ReadProfile)}};
 
 // Faas platform support three features:
 // 1. Event Management: Registration and removal if installed
@@ -44,26 +73,24 @@ using EventPairSet = std::unordered_map<EventType, FunctionType>;
 // 3. Use storage abstraction to access KeyValue Store to do Put, Get, Remove
 // operations.
 class FuncPlatform {
-public:
+ public:
   // Constructor with the injection of customized storage.
   FuncPlatform(const StoragePtr &, const WarblePtr &);
 
   // Register the service to handle function when specific event occur.
-  void Hook(const EventType &, const FunctionType &);
+  void Hook(const EventType &, const FunctionName &);
 
   // Unregister event from service, return true if service is unregistered
   void Unhook(const EventType &);
 
   // Execute handler function based on event type
-  Payload Execute(const EventType &, const Payload &);
+  PayloadOptional Execute(const EventType &, const Payload &);
 
   // Make private members could be accessed in unittest
-  FRIEND_TEST(FuncPlatformTest,
-              shouldHaveHookConfigurationAfterhookEvetTypeAndFunctionStr);
-  FRIEND_TEST(FuncPlatformTest,
-              shouldNotHaveHookConfigurationAfterUnhookEvetType);
+  FRIEND_TEST(FuncPlatformTest, shouldHaveHookConfignAfterhookEventAndFunction);
+  FRIEND_TEST(FuncPlatformTest, shouldNotHaveHookConfigAfterUnhookEvent);
 
-private:
+ private:
   // Pointer of storage abstraction.
   // Used to access the KeyValue storage.
   StoragePtr kv_store_;
@@ -72,8 +99,9 @@ private:
   // Used to access the handler functions.
   WarblePtr warble_service_;
 
-  // A hash map to store hooking information of event type and string
-  EventPairSet hook_dict_;
+  // A hash map to store hooking information of event type and the corresponding
+  // function name.
+  EventFuncNameMap hook_dict_;
 };
 
-#endif // CSCI499_FEI_SRC_FUNC_FUNC_PLATFORM_H_
+#endif  // CSCI499_FEI_SRC_FUNC_FUNC_PLATFORM_H_
