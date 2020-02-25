@@ -1,10 +1,13 @@
+#include "warble_service.h"
+
+#include <sys/time.h>
+
 #include <string>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #include "storage_abstraction.h"
-#include "warble_service.h"
 
 using ::testing::Return;
 
@@ -30,8 +33,7 @@ class WarbleTest: public ::testing::Test {
 // Test: RegisterUser successfully initializes warble list, followers list, following list for the new user.
 //       and the username has not been registered.
 // Expected: RegisterUser will call KeyValueStore Put function three times will corresponding key and empty value.
-//           RegisterUser return value true.
-TEST_F(WarbleTest, shouldSucceedWhenRegisterANewUserName) {
+TEST_F(WarbleTest, shouldInitializeThreeListsWhenRegister) {
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
   std::string mock_user_followers_key = "user_followers_user_Harry Potter";
   std::string mock_user_followings_key = "user_followings_user_Harry Potter";
@@ -44,33 +46,19 @@ TEST_F(WarbleTest, shouldSucceedWhenRegisterANewUserName) {
   EXPECT_CALL(*mock_store_, Put(mock_user_warbles_key, ""));
   EXPECT_CALL(*mock_store_, Put(mock_user_followers_key, ""));
   EXPECT_CALL(*mock_store_, Put(mock_user_followings_key, ""));
-  std::string user_name = "Harry Potter";
-  bool is_register_succeed = warble_->RegisterUser(user_name);
-  EXPECT_TRUE(is_register_succeed);
-}
 
-// Test: RegisterUser failed since duplicate username.
-// Expected: RegisterUser return value false.
-TEST_F(WarbleTest, shouldFailWhenRegisterADuplicateUserName) {
-  std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
-  std::string mock_user_followers_key = "user_followers_user_Harry Potter";
-  std::string mock_user_followings_key = "user_followings_user_Harry Potter";
-
-  StringVector mock_key_vector = {mock_user_warbles_key};
-  StringOptionalVector mock_user_warbles_value = {"Harry Potter"};
-  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
-      .Times(1)
-      .WillOnce(Return(mock_user_warbles_value));
-  std::string user_name = "Harry Potter";
-  bool is_register_succeed = warble_->RegisterUser(user_name);
-  EXPECT_FALSE(is_register_succeed);
+  Payload mock_payload;
+  RegisteruserRequest mock_request;
+  mock_request.set_username("Harry Potter");
+  mock_payload.PackFrom(mock_request);
+  Payload reply_payload = warble_->RegisterUser(mock_payload);
 }
 
 // Test: user_name follow to_follow when both user_name and to_follow have empty profile
 // Expected: Follow call KeyValueStore Put function twice.
 //           Put to_follower in user_name's followings list.
 //           Put user_name in to_follow's followers list.
-TEST_F(WarbleTest, shouldAppendCurrentUserAndToFollowToEachOtherProfileWhenCurrentUserFollowToFollowAndBothOFThemHasNoProfiles) {
+TEST_F(WarbleTest, shouldAddTheFirstFollowerAndFollowingWhenCallFollowFirstTime) {
   std::string user_followings_key = "user_followings_user_Harry Potter";
   std::string to_follow_followers_key = "user_followers_user_Lord Voldmort";
 
@@ -85,14 +73,20 @@ TEST_F(WarbleTest, shouldAppendCurrentUserAndToFollowToEachOtherProfileWhenCurre
   std::string mock_to_follow_followers = "Harry Potter";
   EXPECT_CALL(*mock_store_, Put(user_followings_key, mock_user_followings)).Times(1);
   EXPECT_CALL(*mock_store_, Put(to_follow_followers_key,mock_to_follow_followers)).Times(1);
-  warble_->Follow("Harry Potter", "Lord Voldmort");
+
+  Payload mock_payload;
+  FollowRequest request;
+  request.set_username("Harry Potter");
+  request.set_to_follow("Lord Voldmort");
+  mock_payload.PackFrom(request);
+  Payload reply_payload = warble_->Follow(mock_payload);
 }
 
 // Test: user_name follow to_follow when both user_name and to_follow have profile
 // Expected: Follow call KeyValueStore Put function twice.
 //           Put to_follower in user_name's followings list.
 //           Put user_name in to_follow's followers list.
-TEST_F(WarbleTest, shouldAppendCurrentUserAndToFollowToEachOtherProfileWhenCurrentUserFollowToFollowAndBothOFThemHasProfiles) {
+TEST_F(WarbleTest, shouldAppendNewFollowingAndFollowWhenCallFollow) {
   std::string user_followings_key = "user_followings_user_Harry Potter";
   std::string to_follow_followers_key = "user_followers_user_Lord Voldmort";
 
@@ -107,7 +101,13 @@ TEST_F(WarbleTest, shouldAppendCurrentUserAndToFollowToEachOtherProfileWhenCurre
   std::string mock_to_follow_followers = "follower1,follower2,follower3,Harry Potter";
   EXPECT_CALL(*mock_store_, Put(user_followings_key, mock_user_followings)).Times(1);
   EXPECT_CALL(*mock_store_, Put(to_follow_followers_key,mock_to_follow_followers)).Times(1);
-  warble_->Follow("Harry Potter", "Lord Voldmort");
+
+  Payload mock_payload;
+  FollowRequest request;
+  request.set_username("Harry Potter");
+  request.set_to_follow("Lord Voldmort");
+  mock_payload.PackFrom(request);
+  Payload reply_payload = warble_->Follow(mock_payload);
 }
 
 // Test: Read user's profile that is empty.
@@ -123,9 +123,20 @@ TEST_F(WarbleTest, shouldReturnEmptyProfileWhenReadProfileOfAUserWithoutAnyFollo
       .Times(1)
       .WillOnce(Return(mock_value_vector));
 
-  Profile actual_profile = warble_->ReadProfile("Harry Potter");
-  EXPECT_EQ(0,actual_profile.profile_followings.size());
-  EXPECT_EQ(0,actual_profile.profile_followers.size());
+  Payload mock_payload;
+  ProfileRequest request;
+  request.set_username("Harry Potter");
+  mock_payload.PackFrom(request);
+  Payload reply_payload = warble_->ReadProfile(mock_payload);
+
+  ProfileReply reply;
+  reply_payload.UnpackTo(&reply);
+
+  auto actual_profile_followings = reply.following();
+  auto actual_profile_followers = reply.followers();
+
+  EXPECT_EQ(0,actual_profile_followings.size());
+  EXPECT_EQ(0,actual_profile_followers.size());
 }
 
 // Test: Read user's profile that is not empty.
@@ -149,24 +160,34 @@ TEST_F(WarbleTest, shouldReturnProfileWhenReadProfileOfAUserWithAnyFollowerOrFol
   expected_profile.profile_followers.push_back("follower2");
   expected_profile.profile_followers.push_back("follower3");
 
-  Profile actual_profile = warble_->ReadProfile("Harry Potter");
-  EXPECT_EQ(expected_profile.profile_followings.size(),expected_profile.profile_followings.size());
-  EXPECT_EQ(expected_profile.profile_followers.size(),actual_profile.profile_followers.size());
+  Payload mock_payload;
+  ProfileRequest request;
+  request.set_username("Harry Potter");
+  mock_payload.PackFrom(request);
+  Payload reply_payload = warble_->ReadProfile(mock_payload);
+
+  ProfileReply reply;
+  reply_payload.UnpackTo(&reply);
+
+  auto actual_profile_followings = reply.following();
+  auto actual_profile_followers = reply.followers();
+
+  EXPECT_EQ(expected_profile.profile_followings.size(),actual_profile_followings.size());
+  EXPECT_EQ(expected_profile.profile_followers.size(),actual_profile_followers.size());
 
   for(int i = 0; i < expected_profile.profile_followings.size(); i++) {
-    EXPECT_EQ(expected_profile.profile_followings.at(i), actual_profile.profile_followings.at(i));
+    EXPECT_EQ(expected_profile.profile_followings.at(i), actual_profile_followings.Get(i));
   }
 
   for(int i = 0; i < expected_profile.profile_followers.size(); i++) {
-    EXPECT_EQ(expected_profile.profile_followers.at(i), actual_profile.profile_followers.at(i));
+    EXPECT_EQ(expected_profile.profile_followers.at(i), actual_profile_followers.Get(i));
   }
 }
 
 // Test: a user warbles his/her first warble without reply to any warbles.
 // Expected: 1. Put a new record for this warble: key = "warble_1", value = "It's my first warble.".
 //           2. Append this warble id to the user_warbles list: key = "user_warbles_user_Harry Potter", value = "1";
-TEST_F(WarbleTest, shouldReturnNewWarbleIdWhenUserWarbleTheFirstWarbleWithoutReplyTo) {
-  //mock get warble id
+TEST_F(WarbleTest, shouldReturnNewWarbleWhenUserWarbleTheFirstWarbleWithoutReplyTo) {
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
   StringVector key_vector = {mock_user_warbles_key};
 
@@ -180,8 +201,22 @@ TEST_F(WarbleTest, shouldReturnNewWarbleIdWhenUserWarbleTheFirstWarbleWithoutRep
   EXPECT_CALL(*mock_store_, Put("warble_1", text)).Times(1);
   EXPECT_CALL(*mock_store_, Put(mock_user_warbles_key, "1")).Times(1);
 
-  std::string warble_id = warble_->WarbleText("Harry Potter", "It's my first warble.", StringOptional());
-  EXPECT_EQ(warble_id, "1");
+  WarbleRequest request;
+  request.set_username("Harry Potter");
+  request.set_text("It's my first warble.");
+
+  Payload mock_payload;
+  mock_payload.PackFrom(request);
+
+  Payload reply_payload = warble_->WarbleText(mock_payload);
+
+  WarbleReply reply;
+  reply_payload.UnpackTo(&reply);
+
+  EXPECT_EQ(reply.mutable_warble()->username(),request.username());
+  EXPECT_EQ(reply.mutable_warble()->text(),request.text());
+  EXPECT_EQ(reply.mutable_warble()->id(),"1");
+  EXPECT_EQ(reply.mutable_warble()->parent_id(),request.parent_id());
 }
 
 // Test: a user warbles a new warble that is not his/her first warble,
@@ -189,7 +224,7 @@ TEST_F(WarbleTest, shouldReturnNewWarbleIdWhenUserWarbleTheFirstWarbleWithoutRep
 // Expected: 1. Put a new record for this warble: key = "warble_100", value = "It's my second warble.".
 //           2. Append this warble id to the user_warbles list: key = "user_warbles_user_Harry Potter", value = "1,100";
 //           3. Append this warble id to the warble_thread list: key = "warble_thread_warble_3", value = "100"
-TEST_F(WarbleTest, shouldReturnNewWarbleIdWhenWarbleATextReplyToAnotherWarbleWithouReplies) {
+TEST_F(WarbleTest, shouldReturnNewWarbleWhenNewWarbleReplyToAnotherWarbleWithoutReplies) {
   //mock warble id
   warble_->warble_id_ = 100;
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
@@ -207,8 +242,23 @@ TEST_F(WarbleTest, shouldReturnNewWarbleIdWhenWarbleATextReplyToAnotherWarbleWit
   EXPECT_CALL(*mock_store_, Put(mock_user_warbles_key, "1,100")).Times(1);
   EXPECT_CALL(*mock_store_, Put(mock_warble_thread_key, "100")).Times(1);
 
-  std::string warble_id = warble_->WarbleText("Harry Potter", "It's my second warble.", StringOptional("3"));
-  EXPECT_EQ(warble_id, "100");
+  WarbleRequest request;
+  request.set_username("Harry Potter");
+  request.set_text("It's my second warble.");
+  request.set_parent_id("3");
+
+  Payload mock_payload;
+  mock_payload.PackFrom(request);
+
+  Payload reply_payload = warble_->WarbleText(mock_payload);
+
+  WarbleReply reply;
+  reply_payload.UnpackTo(&reply);
+
+  EXPECT_EQ(reply.mutable_warble()->username(),request.username());
+  EXPECT_EQ(reply.mutable_warble()->text(),request.text());
+  EXPECT_EQ(reply.mutable_warble()->id(),"100");
+  EXPECT_EQ(reply.mutable_warble()->parent_id(),request.parent_id());
 }
 
 // Test: a user warbles a new warble that is not his/her first warble,
@@ -216,7 +266,7 @@ TEST_F(WarbleTest, shouldReturnNewWarbleIdWhenWarbleATextReplyToAnotherWarbleWit
 // Expected: 1. Put a new record for this warble: key = "warble_100", value = "It's my second warble.".
 //           2. Append this warble id to the user_warbles list: key = "user_warbles_user_Harry Potter", value = "1,100";
 //           3. Append this warble id to the warble_thread list: key = "warble_thread_warble_3", value = "4,5,6,100"
-TEST_F(WarbleTest, shouldReturnNewWarbleIdWhenWarbleATextToReplyToAnotherWarbleWithReplies) {
+TEST_F(WarbleTest, shouldReturnNewWarbleWhenNewWarbleReplyToAnotherWarbleWithReplies) {
   //mock warble id
   warble_->warble_id_ = 100;
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
@@ -234,14 +284,29 @@ TEST_F(WarbleTest, shouldReturnNewWarbleIdWhenWarbleATextToReplyToAnotherWarbleW
   EXPECT_CALL(*mock_store_, Put(mock_user_warbles_key, "1,100")).Times(1);
   EXPECT_CALL(*mock_store_, Put(mock_warble_thread_key, "4,5,6,100")).Times(1);
 
-  std::string warble_id = warble_->WarbleText("Harry Potter", "It's my second warble.", StringOptional("3"));
-  EXPECT_EQ(warble_id, "100");
+  WarbleRequest request;
+  request.set_username("Harry Potter");
+  request.set_text("It's my second warble.");
+  request.set_parent_id("3");
+
+  Payload mock_payload;
+  mock_payload.PackFrom(request);
+
+  Payload reply_payload = warble_->WarbleText(mock_payload);
+
+  WarbleReply reply;
+  reply_payload.UnpackTo(&reply);
+
+  EXPECT_EQ(reply.mutable_warble()->username(),request.username());
+  EXPECT_EQ(reply.mutable_warble()->text(),request.text());
+  EXPECT_EQ(reply.mutable_warble()->id(),"100");
+  EXPECT_EQ(reply.mutable_warble()->parent_id(),request.parent_id());
 }
 
 // Test: ReadThread of a warble with id "123" that has no replies.
 // Expected: Expect call KeyValueStore Get function once with the key "warble_thread_warble_123"
 //           ReadThread function return the empty vector of strings
-TEST_F(WarbleTest, shouldReturnEmptyStringVectorWhenReadThreadOfWarbleWithoutAnyReplies) {
+TEST_F(WarbleTest, shouldReturnEmptyStringVectorWhenReadThreadWithoutAnyReplies) {
   std::string mock_warble_thread_key = "warble_thread_warble_123";
   StringVector mock_key_vector = {mock_warble_thread_key};
   StringOptionalVector mock_value_vector = {StringOptional()};
@@ -250,8 +315,18 @@ TEST_F(WarbleTest, shouldReturnEmptyStringVectorWhenReadThreadOfWarbleWithoutAny
          .Times(1)
          .WillOnce(Return(mock_value_vector));
 
-  StringVector warbles = warble_->ReadThread("123");
-  EXPECT_TRUE(warbles.empty());
+  ReadRequest request;
+  request.set_warble_id("123");
+
+  Payload mock_payload;
+  mock_payload.PackFrom(request);
+
+  Payload reply_payload = warble_->ReadThread(mock_payload);
+
+  ReadReply reply;
+  reply_payload.UnpackTo(&reply);
+
+  EXPECT_TRUE(reply.warbles().empty());
 }
 
 // Test: ReadThread of a warble with id "123" that has replies.
@@ -273,18 +348,53 @@ TEST_F(WarbleTest, shouldReturnTheStringVectorOfRepliesWhenReadThreadOfWarbleHas
   mock_key_vector.push_back("warble_2");
   mock_key_vector.push_back("warble_3");
 
-  mock_value_vector.clear();
-  mock_value_vector.push_back("It is the first warble.");
-  mock_value_vector.push_back("It is the second warble.");
-  mock_value_vector.push_back("It is the third warble.");
+
+  std::vector<Warble> mock_warbles;
+  StringOptionalVector mock_warbles_as_str;
+
+  for (int i = 3; i < 6; i++) {
+    Warble warble;
+    timeval time;
+    gettimeofday(&time,NULL);
+    std::string suffix = std::to_string(i);
+    warble.set_username("username" + suffix);
+    warble.set_text("I am warble No. " + suffix);
+    warble.set_id(suffix);
+    warble.set_parent_id("123");
+    warble.mutable_timestamp()->set_seconds(time.tv_sec);
+    warble.mutable_timestamp()->set_useconds(time.tv_usec);
+    mock_warbles.push_back(warble);
+    mock_warbles_as_str.push_back(warble.SerializeAsString());
+  }
 
   EXPECT_CALL(*mock_store_, Get(mock_key_vector))
       .Times(1)
-      .WillOnce(Return(mock_value_vector));
+      .WillOnce(Return(mock_warbles_as_str));
 
-  StringVector warbles = warble_->ReadThread("123");
-  EXPECT_EQ(warbles.size(), 3);
-  EXPECT_EQ(warbles.at(0), "It is the first warble.");
-  EXPECT_EQ(warbles.at(1), "It is the second warble.");
-  EXPECT_EQ(warbles.at(2), "It is the third warble.");
+  ReadRequest request;
+  request.set_warble_id("123");
+
+  Payload mock_payload;
+  mock_payload.PackFrom(request);
+
+  Payload reply_payload = warble_->ReadThread(mock_payload);
+
+  ReadReply reply;
+  reply_payload.UnpackTo(&reply);
+
+  EXPECT_EQ(std::to_string(reply.warbles_size()),
+            std::to_string(mock_warbles.size()));
+
+  for (int i = 0; i < reply.warbles_size(); i++) {
+    Warble actual_warble = reply.warbles().Get(0);
+    Warble expected_warble = mock_warbles.at(0);
+    EXPECT_EQ(actual_warble.username(), expected_warble.username());
+    EXPECT_EQ(actual_warble.id(), expected_warble.id());
+    EXPECT_EQ(actual_warble.text(), expected_warble.text());
+    EXPECT_EQ(actual_warble.parent_id(), expected_warble.parent_id());
+    EXPECT_EQ(actual_warble.timestamp().seconds(),
+              expected_warble.timestamp().seconds());
+    EXPECT_EQ(actual_warble.timestamp().useconds(),
+              expected_warble.timestamp().useconds());
+  }
 }

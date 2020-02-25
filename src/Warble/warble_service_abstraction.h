@@ -1,14 +1,35 @@
 #ifndef CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_ABSTRACTION_H_
 #define CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_ABSTRACTION_H_
 
-#include <gtest/gtest_prod.h>
-
 #include <memory>
+#include <optional>
 #include <string>
+
+#include <gflags/gflags.h>
+#include <glog/logging.h>
+#include <google/protobuf/any.pb.h>
+#include <gtest/gtest_prod.h>
 
 #include "../Func/storage_abstraction.h"
 #include "profile.h"
+#include "Warble.grpc.pb.h"
 
+using google::protobuf::Any;
+using warble::FollowReply;
+using warble::FollowRequest;
+using warble::ProfileReply;
+using warble::ProfileRequest;
+using warble::ReadReply;
+using warble::ReadRequest;
+using warble::RegisteruserReply;
+using warble::RegisteruserRequest;
+using warble::Timestamp;
+using warble::Warble;
+using warble::WarbleReply;
+using warble::WarbleRequest;
+
+using Payload = ::google::protobuf::Any;
+using PayloadOptional = std::optional<Payload>;
 using StoragePtr = std::shared_ptr<StorageAbstraction>;
 using StringVector = std::vector<std::string>;
 using StringOptional = std::optional<std::string>;
@@ -22,23 +43,20 @@ class WarbleServiceAbstraction {
   virtual ~WarbleServiceAbstraction() = default;
 
   // Register the given user_name
-  virtual bool RegisterUser(const std::string &user_name) = 0;
+  virtual Payload RegisterUser(const Payload &payload) = 0;
 
   // Post a new warble or post a new warble as a reply,
   // and return the id of the new warble.
-  virtual std::string WarbleText(const std::string &user_name,
-                                 const std::string &text,
-                                 const StringOptional &reply_to) = 0;
+  virtual Payload WarbleText(const Payload &payload) = 0;
 
   // Start following a given user
-  virtual void Follow(const std::string &user_name,
-                      const std::string &to_follow) = 0;
+  virtual Payload Follow(const Payload &payload) = 0;
 
   // Read a warble thread from the given id
   // Return the vector of the string serialization of Water protobuf
-  virtual StringVector ReadThread(const std::string &warble_id) = 0;
+  virtual Payload ReadThread(const Payload &payload) = 0;
 
   // Return the given user's following and followers
-  virtual Profile ReadProfile(const std::string &user_name) = 0;
+  virtual Payload ReadProfile(const Payload &payload) = 0;
 };
 #endif  // CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_ABSTRACTION_H_
