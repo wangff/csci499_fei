@@ -7,6 +7,7 @@
 
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -102,6 +103,9 @@ class FuncPlatform {
   // A hash map to store hooking information of event type and the corresponding
   // function name.
   EventFuncNameMap hook_dict_;
+
+  // For thread safety of hook_dict_, Use a mutex to avoid race condition.
+  mutable std::mutex hook_dict_locker_;
 };
 
 #endif  // CSCI499_FEI_SRC_FUNC_FUNC_PLATFORM_H_

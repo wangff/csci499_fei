@@ -6,11 +6,13 @@ FuncPlatform::FuncPlatform(const StoragePtr &storage, const WarblePtr &warble)
 // Register the service to handle function when specific event occur.
 void FuncPlatform::Hook(const EventType &event_type,
                         const FunctionName &function_type) {
+  std::lock_guard<std::mutex> lock(hook_dict_locker_);
   hook_dict_[event_type] = function_type;
 };
 
 // Unregister event from service, return true if service is unregistered
 void FuncPlatform::Unhook(const EventType &event_type) {
+  std::lock_guard<std::mutex> lock(hook_dict_locker_);
   hook_dict_.erase(event_type);
 };
 
