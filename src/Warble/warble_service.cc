@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 
+namespace cs499_fei {
 // Helper function: split string by delimiter
 StringVector deserialize(const std::string &s, char delim) {
   std::istringstream iss(s);
@@ -16,7 +17,7 @@ StringVector deserialize(const std::string &s, char delim) {
   return res;
 }
 
-Payload WarbleService::RegisterUser(const Payload &payload) {
+PayloadOptional WarbleService::RegisterUser(const Payload &payload) {
   RegisteruserRequest request;
   payload.UnpackTo(&request);
 
@@ -38,17 +39,16 @@ Payload WarbleService::RegisterUser(const Payload &payload) {
   reply_payload.PackFrom(reply);
 
   if (is_user_exist) {
-    LOG(ERROR) << "The new user_name has been registered.";
-    return reply_payload;
+    return PayloadOptional();
   }
 
   kv_store_->Put(user_warbles_key, "");
   kv_store_->Put(user_followers_key, "");
   kv_store_->Put(user_followings_key, "");
-  return reply_payload;
+  return PayloadOptional(reply_payload);
 }
 
-Payload WarbleService::Follow(const Payload &payload) {
+PayloadOptional WarbleService::Follow(const Payload &payload) {
   FollowRequest request;
   payload.UnpackTo(&request);
 
@@ -85,10 +85,10 @@ Payload WarbleService::Follow(const Payload &payload) {
   FollowReply reply;
   Payload reply_payload;
   reply_payload.PackFrom(reply);
-  return reply_payload;
+  return PayloadOptional(reply_payload);
 }
 
-Payload WarbleService::ReadProfile(const Payload &payload) {
+PayloadOptional WarbleService::ReadProfile(const Payload &payload) {
   ProfileRequest request;
   payload.UnpackTo(&request);
 
@@ -125,10 +125,10 @@ Payload WarbleService::ReadProfile(const Payload &payload) {
 
   Payload reply_payload;
   reply_payload.PackFrom(reply);
-  return reply_payload;
+  return PayloadOptional(reply_payload);
 }
 
-Payload WarbleService::WarbleText(const Payload &payload) {
+PayloadOptional WarbleService::WarbleText(const Payload &payload) {
   timeval time;
   gettimeofday(&time, NULL);
 
@@ -185,10 +185,10 @@ Payload WarbleService::WarbleText(const Payload &payload) {
 
   Payload reply_payload;
   reply_payload.PackFrom(reply);
-  return reply_payload;
+  return PayloadOptional(reply_payload);
 }
 
-Payload WarbleService::ReadThread(const Payload &payload) {
+PayloadOptional WarbleService::ReadThread(const Payload &payload) {
   ReadRequest request;
   payload.UnpackTo(&request);
   std::string warble_id = request.warble_id();
@@ -208,7 +208,7 @@ Payload WarbleService::ReadThread(const Payload &payload) {
 
   if (warble_ids_str.empty()) {
     reply_payload.PackFrom(reply);
-    return reply_payload;
+    return PayloadOptional(reply_payload);
   }
 
   StringVector warble_ids_vector = deserialize(warble_ids_str, ',');
@@ -223,5 +223,6 @@ Payload WarbleService::ReadThread(const Payload &payload) {
   }
 
   reply_payload.PackFrom(reply);
-  return reply_payload;
+  return PayloadOptional(reply_payload);
 }
+}  // namespace cs499_fei

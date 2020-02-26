@@ -3,6 +3,7 @@
 
 #include "warble_service_abstraction.h"
 
+namespace cs499_fei {
 // Warble application: a collection of handler functions to process users
 // requests
 class WarbleService : public WarbleServiceAbstraction {
@@ -21,21 +22,21 @@ class WarbleService : public WarbleServiceAbstraction {
       : kv_store_(storage_ptr){};
 
   // Register the given user_name
-  Payload RegisterUser(const Payload &payload);
+  PayloadOptional RegisterUser(const Payload &payload);
 
   // Post a new warble or post a new warble as a reply,
   // and return the id of the new warble.
-  Payload WarbleText(const Payload &payload);
+  PayloadOptional WarbleText(const Payload &payload);
 
   // Start following a given user
-  Payload Follow(const Payload &payload);
+  PayloadOptional Follow(const Payload &payload);
 
   // Read a warble thread from the given id.
   // Return the vector of the string serialization of Warble protobuf.
-  Payload ReadThread(const Payload &payload);
+  PayloadOptional ReadThread(const Payload &payload);
 
   // Return the given user's following and followers
-  Payload ReadProfile(const Payload &payload);
+  PayloadOptional ReadProfile(const Payload &payload);
 
   // Allow unit tests access private members
   FRIEND_TEST(
@@ -55,5 +56,5 @@ class WarbleService : public WarbleServiceAbstraction {
   // Then increment by 1.
   int warble_id_ = 1;
 };
-
+}  // namespace cs499_fei
 #endif  // CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_H_

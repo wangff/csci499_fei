@@ -1,5 +1,6 @@
 #include "func_platform.h"
 
+namespace cs499_fei {
 FuncPlatform::FuncPlatform(const StoragePtr &storage, const WarblePtr &warble)
     : kv_store_(storage), warble_service_(warble), hook_dict_({}) {}
 
@@ -30,6 +31,7 @@ PayloadOptional FuncPlatform::Execute(const EventType &event_type,
   }
 
   FunctionType func = kFunctionMap.at(functionName);
-  Payload reply_payload = func(*warble_service_, payload);
-  return PayloadOptional(reply_payload);
+  PayloadOptional reply_payload_opt = func(*warble_service_, payload);
+  return reply_payload_opt;
 }
+}  // namespace cs499_fei

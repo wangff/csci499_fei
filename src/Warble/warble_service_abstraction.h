@@ -35,6 +35,7 @@ using StringVector = std::vector<std::string>;
 using StringOptional = std::optional<std::string>;
 using StringOptionalVector = std::vector<StringOptional>;
 
+namespace cs499_fei {
 // Abstraction class for WarbleService
 // Create it for unit test as injection dependency
 class WarbleServiceAbstraction {
@@ -43,20 +44,21 @@ class WarbleServiceAbstraction {
   virtual ~WarbleServiceAbstraction() = default;
 
   // Register the given user_name
-  virtual Payload RegisterUser(const Payload &payload) = 0;
+  virtual PayloadOptional RegisterUser(const Payload &payload) = 0;
 
   // Post a new warble or post a new warble as a reply,
   // and return the id of the new warble.
-  virtual Payload WarbleText(const Payload &payload) = 0;
+  virtual PayloadOptional WarbleText(const Payload &payload) = 0;
 
   // Start following a given user
-  virtual Payload Follow(const Payload &payload) = 0;
+  virtual PayloadOptional Follow(const Payload &payload) = 0;
 
   // Read a warble thread from the given id
   // Return the vector of the string serialization of Water protobuf
-  virtual Payload ReadThread(const Payload &payload) = 0;
+  virtual PayloadOptional ReadThread(const Payload &payload) = 0;
 
   // Return the given user's following and followers
-  virtual Payload ReadProfile(const Payload &payload) = 0;
+  virtual PayloadOptional ReadProfile(const Payload &payload) = 0;
 };
+}  // namespace cs499_fei
 #endif  // CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_ABSTRACTION_H_

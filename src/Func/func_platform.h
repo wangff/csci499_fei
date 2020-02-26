@@ -40,7 +40,7 @@ using WarblePtr = std::shared_ptr<WarbleServiceAbstraction>;
 using EventType = unsigned int;
 using FunctionName = std::string;
 using FunctionType =
-    std::function<Payload(WarbleServiceAbstraction &, Payload)>;
+    std::function<PayloadOptional(WarbleServiceAbstraction &, Payload)>;
 
 using EventFuncNameMap = std::unordered_map<unsigned int, std::string>;
 using StrFuncPair = std::unordered_map<std::string, FunctionType>;
@@ -53,20 +53,21 @@ const std::string kFunctionProfile = "profile";
 
 const StrFuncPair kFunctionMap = {
     {kFunctionRegister,
-     std::function<Payload(WarbleServiceAbstraction &, Payload)>(
+     std::function<PayloadOptional(WarbleServiceAbstraction &, Payload)>(
          &WarbleServiceAbstraction::RegisterUser)},
     {kFunctionWarble,
-     std::function<Payload(WarbleServiceAbstraction &, Payload)>(
+     std::function<PayloadOptional(WarbleServiceAbstraction &, Payload)>(
          &WarbleServiceAbstraction::WarbleText)},
     {kFunctionFollow,
-     std::function<Payload(WarbleServiceAbstraction &, Payload)>(
+     std::function<PayloadOptional(WarbleServiceAbstraction &, Payload)>(
          &WarbleServiceAbstraction::Follow)},
-    {kFunctionRead, std::function<Payload(WarbleServiceAbstraction &, Payload)>(
-                        &WarbleServiceAbstraction::ReadThread)},
+    {kFunctionRead,
+     std::function<PayloadOptional(WarbleServiceAbstraction &, Payload)>(
+         &WarbleServiceAbstraction::ReadThread)},
     {kFunctionProfile,
-     std::function<Payload(WarbleServiceAbstraction &, Payload)>(
+     std::function<PayloadOptional(WarbleServiceAbstraction &, Payload)>(
          &WarbleServiceAbstraction::ReadProfile)}};
-
+namespace cs499_fei {
 // Faas platform support three features:
 // 1. Event Management: Registration and removal if installed
 // 2. Execute handler function in Warble.
@@ -103,5 +104,5 @@ class FuncPlatform {
   // function name.
   EventFuncNameMap hook_dict_;
 };
-
+}  // namespace cs499_fei
 #endif  // CSCI499_FEI_SRC_FUNC_FUNC_PLATFORM_H_
