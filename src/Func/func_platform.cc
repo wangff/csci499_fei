@@ -24,6 +24,7 @@ PayloadOptional FuncPlatform::Execute(const EventType &event_type,
     return PayloadOptional();
   }
 
+  std::lock_guard<std::mutex> lock(hook_dict_locker_);
   std::string functionName = hook_dict_.at(event_type);
 
   // There is no such function in Warble.
