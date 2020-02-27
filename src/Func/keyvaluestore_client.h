@@ -11,6 +11,7 @@
 using grpc::Channel;
 using kvstore::KeyValueStore;
 
+namespace cs499_fei {
 // The gRPC implementation of key-value storage abstraction.
 // Run as the gRPC client to communicate with gRPC Server of KeyValue Storage.
 class KeyValueStoreClient : public StorageAbstraction {
@@ -29,5 +30,5 @@ class KeyValueStoreClient : public StorageAbstraction {
  private:
   std::unique_ptr<KeyValueStore::Stub> stub_;
 };
-
-#endif //FAAS_SRC_FUNC_KEYVALUESTORE_CLIENT_H_
+}  // namespace cs499_fei
+#endif  // FAAS_SRC_FUNC_KEYVALUESTORE_CLIENT_H_

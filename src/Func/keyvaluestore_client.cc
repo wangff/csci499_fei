@@ -15,10 +15,13 @@ using kvstore::RemoveRequest;
 using kvstore::RemoveReply;
 using kvstore::KeyValueStore;
 
+namespace cs499_fei {
+
 KeyValueStoreClient::KeyValueStoreClient(std::shared_ptr<grpc::Channel> channel)
     : stub_(KeyValueStore::NewStub(channel)) {}
 
-void KeyValueStoreClient::Put(const std::string &key, const std::string &value) {
+void KeyValueStoreClient::Put(const std::string &key,
+                              const std::string &value) {
   PutRequest request;
   request.set_key(key);
   request.set_value(value);
@@ -33,7 +36,8 @@ void KeyValueStoreClient::Put(const std::string &key, const std::string &value) 
   } else {
     // Fail to put key-value pair.
     LOG(ERROR) << "PutRequest RPC failed, Key: " << key << std::endl
-               << "Error: " << status.error_code() << ": " << status.error_message();
+               << "Error: " << status.error_code() << ": "
+               << status.error_message();
   }
 }
 
@@ -64,7 +68,8 @@ StringOptionalVector KeyValueStoreClient::Get(const StringVector &key_vector) {
     LOG(INFO) << "GetRequest RPC succeed";
   } else {
     LOG(ERROR) << "GetRequest RPC failed"
-               << "Error: " << status.error_code() << ", " << status.error_message();
+               << "Error: " << status.error_code() << ", "
+               << status.error_message();
   }
   return value_vector;
 }
@@ -81,6 +86,8 @@ void KeyValueStoreClient::Remove(const std::string &key) {
     LOG(INFO) << "RemoveRequest RPC succeed, Key: " << key;
   } else {
     LOG(ERROR) << "RemoveRequest RPC failed"
-               << "Error: " << status.error_code() << ", " << status.error_message();
+               << "Error: " << status.error_code() << ", "
+               << status.error_message();
   }
 }
+}  // namespace cs499_fei

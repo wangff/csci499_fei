@@ -1,5 +1,11 @@
 #include "func_service.h"
 
+using cs499_fei::FuncServiceImpl;
+using cs499_fei::KeyValueStoreClient;
+using cs499_fei::StoragePtr;
+using cs499_fei::WarblePtr;
+using cs499_fei::WarbleService;
+
 FuncServiceImpl::FuncServiceImpl(StoragePtr storage_ptr, WarblePtr warble_ptr)
     : func_platform_(new FuncPlatform(storage_ptr, warble_ptr)){};
 
@@ -68,6 +74,8 @@ int main(int argc, char **argv) {
 
   // Optional: parse command line flags
   gflags::ParseCommandLineFlags(&argc, &argv, true);
+
+  FLAGS_alsologtostderr = 1;
 
   RunServer();
 

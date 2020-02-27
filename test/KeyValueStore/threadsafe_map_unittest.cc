@@ -5,6 +5,7 @@
 
 #include "../../src/KeyValueStore/threadsafe_map.h"
 
+namespace cs499_fei {
 using OptionalVector = std::vector<std::optional<std::string>>;
 
 void thread_put_pairs(ThreadsafeMap &m, int i) {
@@ -31,8 +32,8 @@ TEST(KeyValueStore, DefaultConstructor) {
   EXPECT_EQ(std::nullopt, mock_value);
 }
 
-// Test: Test Get method works well after putting some key-value pair into the map.
-// Expected: value "value is 100" given key "100"
+// Test: Test Get method works well after putting some key-value pair into the
+// map. Expected: value "value is 100" given key "100"
 TEST(KeyValueStore, AddANewPair) {
   ThreadsafeMap m;
   auto key = "100";
@@ -124,4 +125,4 @@ TEST(KeyValueStore, MultithreadsPutRemove) {
     EXPECT_TRUE(value == std::nullopt || value.value() == key);
   }
 }
-
+}  // namespace cs499_fei

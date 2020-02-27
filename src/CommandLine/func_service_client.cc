@@ -1,10 +1,12 @@
 #include "func_service_client.h"
-
+namespace cs499_fei {
 FuncServiceClient::FuncServiceClient(std::shared_ptr<grpc::Channel> channel)
-  : stub_(FuncService::NewStub(channel)) {};
+    : stub_(FuncService::NewStub(channel)){};
 
-// Send the hooking gRPC requests to register the mapping relationship between event_type and event_function
-void FuncServiceClient::Hook(const int event_type, const std::string &event_function) {
+// Send the hooking gRPC requests to register the mapping relationship between
+// event_type and event_function
+void FuncServiceClient::Hook(const int event_type,
+                             const std::string &event_function) {
   // Data we are sending to the server.
   HookRequest request;
   request.set_event_type(event_type);
@@ -26,11 +28,13 @@ void FuncServiceClient::Hook(const int event_type, const std::string &event_func
   } else {
     // Fail to put key-value pair.
     LOG(ERROR) << "HooKRequest RPC failed, Key: " << event_type << std::endl
-               << "Error: " << status.error_code() << ": " << status.error_message();
+               << "Error: " << status.error_code() << ": "
+               << status.error_message();
   }
 }
 
-// Send the unhooking gRPC requests to remove the mapping relationship based on event_type
+// Send the unhooking gRPC requests to remove the mapping relationship based on
+// event_type
 void FuncServiceClient::UnHook(const int event_type) {
   // Data we are sending to the server.
   UnhookRequest request;
@@ -52,7 +56,8 @@ void FuncServiceClient::UnHook(const int event_type) {
   } else {
     // Fail to put key-value pair.
     LOG(ERROR) << "UnhookRequest RPC failed, Key: " << event_type << std::endl
-               << "Error: " << status.error_code() << ": " << status.error_message();
+               << "Error: " << status.error_code() << ": "
+               << status.error_message();
   }
 }
 
@@ -79,7 +84,9 @@ Any FuncServiceClient::Event(const int event_type, Any *payload) {
   } else {
     // Fail to put key-value pair.
     LOG(ERROR) << "UnhookRequest RPC failed, Key: " << event_type << std::endl
-               << "Error: " << status.error_code() << ": " << status.error_message();
+               << "Error: " << status.error_code() << ": "
+               << status.error_message();
   }
   return reply.payload();
 }
+}  // namespace cs499_fei
