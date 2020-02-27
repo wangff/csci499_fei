@@ -3,7 +3,9 @@
 
 #include "warble_service_abstraction.h"
 
-// Warble application: a collection of handler functions to process users requests
+namespace cs499_fei {
+// Warble application: a collection of handler functions to process users
+// requests
 class WarbleService : public WarbleServiceAbstraction {
  public:
   // Definition of all of keys' prefix
@@ -16,28 +18,33 @@ class WarbleService : public WarbleServiceAbstraction {
 
   // Constructor with the parameter of StoragePtr.
   // StoragePtr used by Warble to communicate with KeyValueStore.
-  explicit WarbleService(const StoragePtr &storage_ptr) : kv_store_(storage_ptr) {};
+  explicit WarbleService(const StoragePtr &storage_ptr)
+      : kv_store_(storage_ptr){};
 
   // Register the given user_name
-  bool RegisterUser(const std::string &user_name);
+  PayloadOptional RegisterUser(const Payload &payload);
 
   // Post a new warble or post a new warble as a reply,
   // and return the id of the new warble.
-  std::string WarbleText(const std::string &user_name, const std::string &text, const StringOptional &reply_to);
+  PayloadOptional WarbleText(const Payload &payload);
 
-  //Start following a given user
-  void Follow(const std::string &user_name, const std::string &to_follow);
+  // Start following a given user
+  PayloadOptional Follow(const Payload &payload);
 
   // Read a warble thread from the given id.
   // Return the vector of the string serialization of Warble protobuf.
-  StringVector ReadThread(const std::string &warble_id);
+  PayloadOptional ReadThread(const Payload &payload);
 
   // Return the given user's following and followers
-  Profile ReadProfile(const std::string &user_name);
+  PayloadOptional ReadProfile(const Payload &payload);
 
-  // Make the private member accessible by test.
-  FRIEND_TEST(WarbleTest, shouldReturnNewWarbleIdWhenWarbleATextReplyToAnotherWarbleWithouReplies);
-  FRIEND_TEST(WarbleTest, shouldReturnNewWarbleIdWhenWarbleATextToReplyToAnotherWarbleWithReplies);
+  // Allow unit tests access private members
+  FRIEND_TEST(
+      WarbleTest,
+      shouldReturnNewWarbleWhenNewWarbleReplyToAnotherWarbleWithoutReplies);
+  FRIEND_TEST(
+      WarbleTest,
+      shouldReturnNewWarbleWhenNewWarbleReplyToAnotherWarbleWithReplies);
 
  private:
   // Pointer of storage abstraction.
@@ -49,5 +56,5 @@ class WarbleService : public WarbleServiceAbstraction {
   // Then increment by 1.
   int warble_id_ = 1;
 };
-
-#endif //CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_H_
+}  // namespace cs499_fei
+#endif  // CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_H_

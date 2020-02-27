@@ -22,11 +22,11 @@ class MockStorage : public StorageAbstraction {
 // Used for dependency injection for Func_platform constructor
 class MockWarble : public WarbleServiceAbstraction {
  public:
-  MOCK_METHOD1(RegisterUser, Payload(const Payload &payload));
-  MOCK_METHOD1(WarbleText, Payload(const Payload &payload));
-  MOCK_METHOD1(Follow, Payload(const Payload &payload));
-  MOCK_METHOD1(ReadThread, Payload(const Payload &payload));
-  MOCK_METHOD1(ReadProfile, Payload(const Payload &payload));
+  MOCK_METHOD1(RegisterUser, PayloadOptional(const Payload &payload));
+  MOCK_METHOD1(WarbleText, PayloadOptional(const Payload &payload));
+  MOCK_METHOD1(Follow, PayloadOptional(const Payload &payload));
+  MOCK_METHOD1(ReadThread, PayloadOptional(const Payload &payload));
+  MOCK_METHOD1(ReadProfile, PayloadOptional(const Payload &payload));
 };
 
 // Init the global variables for all the test cases in this test suite
