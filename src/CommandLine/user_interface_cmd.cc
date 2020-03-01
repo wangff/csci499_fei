@@ -128,13 +128,16 @@ int main(int argc, char** argv) {
     }
     payload.PackFrom(request);
     Any res_payload = func_service_client.Event(event_type, &payload);
-    Warble reply;
+    WarbleReply reply;
     res_payload.UnpackTo(&reply);
+
+    Warble warble = reply.warble();
+
     output_str = "Warble has been stored successfully. \n username: " +
-                 reply.username() + "\n" + "warble id: " + reply.id() + "\n" +
-                 "warble text: " + reply.text() + "\n" +
-                 "parent id: " + reply.parent_id() + "\n" +
-                 "at time: " + std::to_string(reply.timestamp().seconds()) +
+        warble.username() + "\n" + "warble id: " + warble.id() + "\n" +
+                 "warble text: " + warble.text() + "\n" +
+                 "parent id: " + warble.parent_id() + "\n" +
+                 "at time: " + std::to_string(warble.timestamp().seconds()) +
                  ".\n";
     logAndPrint(output_str);
   }

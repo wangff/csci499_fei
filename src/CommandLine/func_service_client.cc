@@ -82,7 +82,7 @@ Any FuncServiceClient::Event(const int event_type, Any *payload) {
   if (status.ok()) {
     LOG(INFO) << "Event execution succeed, EventType: " << event_type;
   } else {
-    // Fail to put key-value pair.
+    // Fail to execute the event.
     LOG(ERROR) << "Event execution failed, Key: " << event_type << std::endl
                << "Error: " << status.error_code() << ": "
                << status.error_message();

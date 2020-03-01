@@ -19,7 +19,7 @@ DEFINE_string(reply, "warble_id",
 DEFINE_string(follow, "username", "Starts following the given username");
 DEFINE_string(read, "warble_id",
               "Reads the warble thread starting at the given id");
-DEFINE_string(profile, "",
-              "Gets the user’s profile of following and followers");
-}// namespace cs499_fei
-#endif //CSCI499_FEI_SRC_FRONTEND_USER_INTERFACE_CMD_H_
+DEFINE_bool(profile, true,
+            "Gets the user’s profile of following and followers");
+}//   namespace cs499_fei
+#endif /  CS CI499_FEI_SRC_FRONTEND_USER_INTERFACE_CMD_H_
