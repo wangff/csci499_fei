@@ -66,7 +66,7 @@ Any FuncServiceClient::Event(const int event_type, Any *payload) {
   // Data we are sending to the server.
   EventRequest request;
   request.set_event_type(event_type);
-  request.set_allocated_payload(payload);
+  request.mutable_payload()->CopyFrom(*payload);
 
   // Container for the data we expect from the server.
   EventReply reply;
@@ -80,10 +80,10 @@ Any FuncServiceClient::Event(const int event_type, Any *payload) {
 
   // Act upon its status.
   if (status.ok()) {
-    LOG(INFO) << "UnhookRequest RPC succeed, EventType: " << event_type;
+    LOG(INFO) << "Event execution succeed, EventType: " << event_type;
   } else {
     // Fail to put key-value pair.
-    LOG(ERROR) << "UnhookRequest RPC failed, Key: " << event_type << std::endl
+    LOG(ERROR) << "Event execution failed, Key: " << event_type << std::endl
                << "Error: " << status.error_code() << ": "
                << status.error_message();
   }

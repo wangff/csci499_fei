@@ -10,7 +10,7 @@ DEFINE_string(hook, "event type:function string",
 DEFINE_string(
     unhook, "event type",
     "remove the mapping relationship between event type and function on Func");
-DEFINE_string(resgisteruser, "username", "Registers the given username");
+DEFINE_string(registeruser, "username", "Registers the given username");
 DEFINE_string(user, "username", "Logs in as the given username");
 DEFINE_string(warble, "warble text",
               "Creates a new warble with the given text");

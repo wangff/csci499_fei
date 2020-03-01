@@ -32,7 +32,7 @@ PayloadOptional WarbleService::RegisterUser(const Payload &payload) {
   StringVector keys_vector = {user_warbles_key};
   StringOptional user_warbles = kv_store_->Get(keys_vector).at(0);
 
-  bool is_user_exist = user_warbles != std::nullopt;
+  bool is_user_exist = !user_warbles.has_value();
 
   RegisteruserReply reply;
   Payload reply_payload;

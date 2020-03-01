@@ -35,8 +35,9 @@ Status FuncServiceImpl::event(ServerContext *context,
   auto payload = request->payload();
   LOG(INFO) << "Received EventRequest. "
             << " EventType: " << event_type;
-  auto reply_payload = func_platform_->Execute(event_type, payload);
-  if (reply_payload.has_value()) {
+  auto reply_payload_opt = func_platform_->Execute(event_type, payload);
+  if (reply_payload_opt.has_value()) {
+    reply->mutable_payload()->CopyFrom(reply_payload_opt.value());
     return Status::OK;
   } else {
     return Status::CANCELLED;

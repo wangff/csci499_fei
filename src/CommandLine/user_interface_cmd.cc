@@ -26,7 +26,7 @@ using cs499_fei::FLAGS_hook;
 using cs499_fei::FLAGS_profile;
 using cs499_fei::FLAGS_read;
 using cs499_fei::FLAGS_reply;
-using cs499_fei::FLAGS_resgisteruser;
+using cs499_fei::FLAGS_registeruser;
 using cs499_fei::FLAGS_unhook;
 using cs499_fei::FLAGS_user;
 using cs499_fei::FLAGS_warble;
@@ -56,6 +56,8 @@ int main(int argc, char** argv) {
   // Parse command line flags
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
+  FLAGS_alsologtostderr = 1;
+
   FuncServiceClient func_service_client(grpc::CreateChannel(
       "localhost:50001", grpc::InsecureChannelCredentials()));
 
@@ -63,8 +65,8 @@ int main(int argc, char** argv) {
       gflags::GetCommandLineFlagInfoOrDie("hook").is_default;
   bool flag_unhook_not_set =
       gflags::GetCommandLineFlagInfoOrDie("unhook").is_default;
-  bool flag_resgisteruser_not_set =
-      gflags::GetCommandLineFlagInfoOrDie("resgisteruser").is_default;
+  bool flag_registeruser_not_set =
+      gflags::GetCommandLineFlagInfoOrDie("registeruser").is_default;
   bool flag_user_not_set =
       gflags::GetCommandLineFlagInfoOrDie("user").is_default;
   bool flag_warble_not_set =
@@ -97,14 +99,14 @@ int main(int argc, char** argv) {
     logAndPrint(output_str);
   }
   // ./Warble --registeruser "username"
-  else if (!flag_resgisteruser_not_set) {
+  else if (!flag_registeruser_not_set) {
     RegisteruserRequest request;
-    request.set_username(FLAGS_resgisteruser);
+    request.set_username(FLAGS_registeruser);
     Any payload;
     payload.PackFrom(request);
     int event_type = 1;
     func_service_client.Event(event_type, &payload);
-    std::string output_str = "Register user: " + FLAGS_resgisteruser + ".\n";
+    std::string output_str = "Register user: " + FLAGS_registeruser + ".\n";
     logAndPrint(output_str);
   }
   // ./Warble --user "username" --warble "warble content"
