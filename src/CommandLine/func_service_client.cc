@@ -62,7 +62,7 @@ void FuncServiceClient::UnHook(const int event_type) {
 }
 
 // Send the event gRPC requests to execute the specified warble handler function
-Any FuncServiceClient::Event(const int event_type, Any *payload) {
+OptionalPayload FuncServiceClient::Event(const int event_type, Payload *payload) {
   // Data we are sending to the server.
   EventRequest request;
   request.set_event_type(event_type);
@@ -81,12 +81,13 @@ Any FuncServiceClient::Event(const int event_type, Any *payload) {
   // Act upon its status.
   if (status.ok()) {
     LOG(INFO) << "Event execution succeed, EventType: " << event_type;
+    return reply.payload();
   } else {
     // Fail to execute the event.
     LOG(ERROR) << "Event execution failed, Key: " << event_type << std::endl
                << "Error: " << status.error_code() << ": "
                << status.error_message();
+    return OptionalPayload();
   }
-  return reply.payload();
 }
 }  // namespace cs499_fei

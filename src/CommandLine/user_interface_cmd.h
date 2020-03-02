@@ -22,4 +22,4 @@ DEFINE_string(read, "warble_id",
 DEFINE_bool(profile, true,
             "Gets the user’s profile of following and followers");
 }//   namespace cs499_fei
-#endif /  CS CI499_FEI_SRC_FRONTEND_USER_INTERFACE_CMD_H_
+#endif //  CS CI499_FEI_SRC_FRONTEND_USER_INTERFACE_CMD_H_
