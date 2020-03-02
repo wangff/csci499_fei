@@ -44,9 +44,9 @@ TEST_F(WarbleTest, shouldReturnPayloadWithValueWhenRegisterUserSuccessfully) {
   StringOptionalVector mock_user_warbles_value = {StringOptional()};
   EXPECT_CALL(*mock_store_, Get(mock_key_vector))
       .WillOnce(Return(mock_user_warbles_value));
-  EXPECT_CALL(*mock_store_, Put(mock_user_warbles_key, ""));
-  EXPECT_CALL(*mock_store_, Put(mock_user_followers_key, ""));
-  EXPECT_CALL(*mock_store_, Put(mock_user_followings_key, ""));
+  EXPECT_CALL(*mock_store_, Put(mock_user_warbles_key, "INIT"));
+  EXPECT_CALL(*mock_store_, Put(mock_user_followers_key, "INIT"));
+  EXPECT_CALL(*mock_store_, Put(mock_user_followings_key, "INIT"));
 
   Payload mock_payload;
   RegisteruserRequest mock_request;
@@ -65,7 +65,7 @@ TEST_F(WarbleTest,
   std::string mock_user_followings_key = "user_followings_user_Harry Potter";
 
   StringVector mock_key_vector = {mock_user_warbles_key};
-  StringOptionalVector mock_user_warbles_value = {""};
+  StringOptionalVector mock_user_warbles_value = {"INIT"};
   EXPECT_CALL(*mock_store_, Get(mock_key_vector))
       .WillOnce(Return(mock_user_warbles_value));
 

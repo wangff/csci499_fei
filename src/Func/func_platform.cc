@@ -22,7 +22,6 @@ PayloadOptional FuncPlatform::Execute(const EventType &event_type,
                                       const Payload &payload) {
   // There is no hooking config.
   if (!hook_dict_.count(event_type)) {
-    LOG(INFO) << "hook_dict has no value";
     return PayloadOptional();
   }
 
