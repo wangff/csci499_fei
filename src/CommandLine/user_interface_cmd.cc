@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
     if (res_payload_opt.has_value()) {
       output_str = "Register user: " + FLAGS_registeruser + ".\n";
     } else {
-      output_str = "Registration failed.";
+      output_str = "Registration failed.\n";
     }
     logAndPrint(output_str);
   }
@@ -200,7 +200,7 @@ int main(int argc, char** argv) {
     res_payload.UnpackTo(&reply);
 
     if (reply.warbles_size() == 0) {
-      output_str = "Warble " + warble_id + " has no replies.";
+      output_str = "Warble " + warble_id + " has no replies.\n";
       logAndPrint(output_str);
       exit(0);
     }
