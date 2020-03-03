@@ -1,6 +1,0 @@
-#!/bin/sh
-build/src/CommandLine/warble --hook "1:register"
-build/src/CommandLine/warble --hook "2:warble"
-build/src/CommandLine/warble --hook "3:follow"
-build/src/CommandLine/warble --hook "4:read"
-build/src/CommandLine/warble --hook "5:profile"

@@ -13,7 +13,7 @@ find_package(glog 0.4.0 REQUIRED)
 find_package(GTest REQUIRED)
 find_package(GMock REQUIRED)
 
-set(BINARY Faas_tests)
+set(BINARY faas_unit_tests)
 
 message(STATUS "\"${BINARY}\" will include mock includes: \"${GMOCK_INCLUDE_DIRS}\"")
 
