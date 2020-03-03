@@ -9,6 +9,7 @@
 using ::testing::_;
 using ::testing::Return;
 
+namespace cs499_fei {
 // Mock Class of StorageAbstraction
 // Used for dependency injection for Func_platform constructor
 class MockStorage : public StorageAbstraction {
@@ -172,3 +173,4 @@ TEST_F(FuncPlatformTest, shouldReturnEmptyPayloadWhenExecuteNotExist) {
   PayloadOptional reply_payload_opt = service_->Execute(event_type, payload);
   EXPECT_FALSE(reply_payload_opt.has_value());
 }
+}  // namespace cs499_fei

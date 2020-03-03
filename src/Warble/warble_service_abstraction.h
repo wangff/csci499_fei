@@ -28,6 +28,7 @@ using warble::Warble;
 using warble::WarbleReply;
 using warble::WarbleRequest;
 
+namespace cs499_fei {
 using Payload = ::google::protobuf::Any;
 using PayloadOptional = std::optional<Payload>;
 using StoragePtr = std::shared_ptr<StorageAbstraction>;
@@ -35,7 +36,6 @@ using StringVector = std::vector<std::string>;
 using StringOptional = std::optional<std::string>;
 using StringOptionalVector = std::vector<StringOptional>;
 
-namespace cs499_fei {
 // Abstraction class for WarbleService
 // Create it for unit test as injection dependency
 class WarbleServiceAbstraction {

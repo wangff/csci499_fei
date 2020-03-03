@@ -33,6 +33,8 @@ using warble::Warble;
 using warble::WarbleReply;
 using warble::WarbleRequest;
 
+namespace cs499_fei {
+
 using Payload = ::google::protobuf::Any;
 using PayloadOptional = std::optional<Payload>;
 using StoragePtr = std::shared_ptr<StorageAbstraction>;
@@ -68,7 +70,6 @@ const StrFuncPair kFunctionMap = {
     {kFunctionProfile,
      std::function<PayloadOptional(WarbleServiceAbstraction &, Payload)>(
          &WarbleServiceAbstraction::ReadProfile)}};
-namespace cs499_fei {
 // Faas platform support three features:
 // 1. Event Management: Registration and removal if installed
 // 2. Execute handler function in Warble.

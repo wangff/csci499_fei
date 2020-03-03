@@ -1,10 +1,9 @@
-#include <iostream>
-#include <mutex>
-#include <thread>
-#include <unordered_map>
-
 #include "threadsafe_map.h"
 
+#include <mutex>
+#include <unordered_map>
+
+namespace cs499_fei {
 bool ThreadsafeMap::Put(const std::string &key, const std::string &value) {
   std::lock_guard<std::mutex> lock(data_locker_);
   data_[key] = value;
@@ -26,3 +25,4 @@ void ThreadsafeMap::Remove(const std::string &key) {
   std::lock_guard<std::mutex> lock(data_locker_);
   data_.erase(key);
 }
+}  // namespace cs499_fei

@@ -11,6 +11,7 @@
 
 using ::testing::Return;
 
+namespace cs499_fei {
 // Mock Class of StorageAbstraction
 // Used for dependency injection for Warble constructor
 class MockStorage : public StorageAbstraction {
@@ -444,3 +445,4 @@ TEST_F(
               expected_warble.timestamp().useconds());
   }
 }
+}  // namespace cs499_fei

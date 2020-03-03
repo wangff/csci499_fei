@@ -1,8 +1,10 @@
-#include "keyvaluestore_server.h";
+#include "keyvaluestore_server.h"
 
-Status KeyValueStoreServiceImpl::put(ServerContext *context, const PutRequest *request,
-           PutReply *reply) {
+using cs499_fei::KeyValueStoreServiceImpl;
 
+Status KeyValueStoreServiceImpl::put(ServerContext *context,
+                                     const PutRequest *request,
+                                     PutReply *reply) {
   auto key = request->key();
   auto value = request->value();
 
@@ -13,8 +15,8 @@ Status KeyValueStoreServiceImpl::put(ServerContext *context, const PutRequest *r
   return Status::OK;
 }
 
-Status KeyValueStoreServiceImpl::get(ServerContext *context,
-           ServerReaderWriter<GetReply, GetRequest> *stream) {
+Status KeyValueStoreServiceImpl::get(
+    ServerContext *context, ServerReaderWriter<GetReply, GetRequest> *stream) {
   GetRequest request;
   while (stream->Read(&request)) {
     auto key = request.key();
@@ -30,8 +32,9 @@ Status KeyValueStoreServiceImpl::get(ServerContext *context,
   return Status::OK;
 }
 
-Status KeyValueStoreServiceImpl::remove(ServerContext *context, const RemoveRequest *request,
-              RemoveReply *reply) {
+Status KeyValueStoreServiceImpl::remove(ServerContext *context,
+                                        const RemoveRequest *request,
+                                        RemoveReply *reply) {
   auto key = request->key();
   LOG(INFO) << "Received RemoveRequest. "
             << " Key: " << key;
@@ -61,6 +64,8 @@ int main(int argc, char **argv) {
 
   // Optional: parse command line flags
   gflags::ParseCommandLineFlags(&argc, &argv, true);
+
+  FLAGS_alsologtostderr = 1;
 
   RunServer();
   return 0;
