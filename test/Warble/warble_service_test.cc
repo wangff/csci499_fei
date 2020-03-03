@@ -235,7 +235,7 @@ TEST_F(WarbleTest,
 
   std::string text = "It's my first warble.";
 
-  EXPECT_CALL(*mock_store_, Put("warble_1", text));
+  EXPECT_CALL(*mock_store_, Put("warble_1", testing::_));
   EXPECT_CALL(*mock_store_, Put(mock_user_warbles_key, "1"));
 
   WarbleRequest request;
@@ -278,7 +278,7 @@ TEST_F(WarbleTest,
 
   std::string text = "It's my second warble.";
 
-  EXPECT_CALL(*mock_store_, Put("warble_100", text));
+  EXPECT_CALL(*mock_store_, Put("warble_100", testing::_));
   EXPECT_CALL(*mock_store_, Put(mock_user_warbles_key, "1,100"));
   EXPECT_CALL(*mock_store_, Put(mock_warble_thread_key, "100"));
 
@@ -322,7 +322,7 @@ TEST_F(WarbleTest,
 
   std::string text = "It's my second warble.";
 
-  EXPECT_CALL(*mock_store_, Put("warble_100", text));
+  EXPECT_CALL(*mock_store_, Put("warble_100", testing::_));
   EXPECT_CALL(*mock_store_, Put(mock_user_warbles_key, "1,100"));
   EXPECT_CALL(*mock_store_, Put(mock_warble_thread_key, "4,5,6,100"));
 

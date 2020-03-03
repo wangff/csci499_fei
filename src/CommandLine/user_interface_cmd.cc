@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
   // Parse command line flags
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-  FLAGS_alsologtostderr = 1;
+//  FLAGS_alsologtostderr = 1;
 
   FuncServiceClient func_service_client(grpc::CreateChannel(
       "localhost:50001", grpc::InsecureChannelCredentials()));
@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
 
     Warble warble = reply.warble();
 
-    output_str = "Warble has been stored successfully. \n username: " +
+    output_str = "Warble has been stored successfully. \nusername: " +
                  warble.username() + "\n" + "warble id: " + warble.id() + "\n" +
                  "warble text: " + warble.text() + "\n" +
                  "parent id: " + warble.parent_id() + "\n" +
@@ -198,12 +198,20 @@ int main(int argc, char** argv) {
     Payload res_payload = res_payload_opt.value();
     ReadReply reply;
     res_payload.UnpackTo(&reply);
+
+    if (reply.warbles_size() == 0) {
+      output_str = "Warble " + warble_id + " has no replies.";
+      logAndPrint(output_str);
+      exit(0);
+    }
+
     output_str = "Reads the warble thread starting at " + FLAGS_read + ".\n";
     logAndPrint(output_str);
     for (const auto& warble : reply.warbles()) {
       output_str = "User: " + warble.username() +
-                   "; Warble Number: " + warble.id() +
-                   "; Warble Text: " + warble.text() + ".\n";
+                   "; Warble Id: " + warble.id() +
+                   "; Warble Text: " + warble.text() +
+                   "; Warble Reply To " + warble.parent_id() + ".\n";
       logAndPrint(output_str);
     }
   }
@@ -230,15 +238,15 @@ int main(int argc, char** argv) {
     res_payload.UnpackTo(&reply);
     auto followers = reply.followers();
     auto followings = reply.following();
-    output_str = "User: " + FLAGS_user + "has followers :\n";
+    output_str = "User: " + FLAGS_user + " has followers :\n";
     logAndPrint(output_str);
     for (const auto& follower : followers) {
-      logAndPrint(follower);
+      logAndPrint(follower+"\n");
     }
-    output_str = "User: " + FLAGS_user + "has followings :\n";
+    output_str = "User: " + FLAGS_user + " has followings :\n";
     logAndPrint(output_str);
     for (const auto& following : followings) {
-      logAndPrint(following);
+      logAndPrint(following+"\n");
     }
   }
 }
