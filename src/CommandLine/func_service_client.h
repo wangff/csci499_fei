@@ -16,9 +16,10 @@ using func::HookReply;
 using func::HookRequest;
 using func::UnhookReply;
 using func::UnhookRequest;
-using google::protobuf::Any;
-using google::protobuf::Message;
 using grpc::Status;
+
+using Payload = google::protobuf::Any;
+using OptionalPayload = std::optional<Payload>;
 
 namespace cs499_fei {
 // The client of gRPC to send requests to FuncService
@@ -37,7 +38,7 @@ class FuncServiceClient {
 
   // Send the event gRPC requests to execute the specified warble handler
   // function
-  Any Event(const int event_type, Any *payload);
+  OptionalPayload Event(const int event_type, Payload *payload);
 
  private:
   std::unique_ptr<FuncService::Stub> stub_;

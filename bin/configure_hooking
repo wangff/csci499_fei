@@ -1,0 +1,6 @@
+#!/bin/sh
+./warble --hook "1:register"
+./warble --hook "2:warble"
+./warble --hook "3:follow"
+./warble --hook "4:read"
+./warble --hook "5:profile"

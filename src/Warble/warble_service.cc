@@ -32,7 +32,7 @@ PayloadOptional WarbleService::RegisterUser(const Payload &payload) {
   StringVector keys_vector = {user_warbles_key};
   StringOptional user_warbles = kv_store_->Get(keys_vector).at(0);
 
-  bool is_user_exist = user_warbles != std::nullopt;
+  bool is_user_exist = (user_warbles.has_value()) && (!user_warbles.value().empty());
 
   RegisteruserReply reply;
   Payload reply_payload;
@@ -42,9 +42,9 @@ PayloadOptional WarbleService::RegisterUser(const Payload &payload) {
     return PayloadOptional();
   }
 
-  kv_store_->Put(user_warbles_key, "");
-  kv_store_->Put(user_followers_key, "");
-  kv_store_->Put(user_followings_key, "");
+  kv_store_->Put(user_warbles_key, kInit);
+  kv_store_->Put(user_followers_key, kInit);
+  kv_store_->Put(user_followings_key, kInit);
   return PayloadOptional(reply_payload);
 }
 
@@ -70,11 +70,11 @@ PayloadOptional WarbleService::Follow(const Payload &payload) {
   std::string new_to_follow_followers = user_name;
   std::string new_user_followings = to_follow;
 
-  if (user_followings != std::nullopt) {
+  if ((user_followings != std::nullopt) && (user_followings.value() != kInit)) {
     new_user_followings = user_followings.value() + "," + new_user_followings;
   }
 
-  if (to_follow_followers != std::nullopt) {
+  if ((to_follow_followers != std::nullopt) && (to_follow_followers != kInit)) {
     new_to_follow_followers =
         to_follow_followers.value() + "," + new_to_follow_followers;
   }
@@ -107,11 +107,11 @@ PayloadOptional WarbleService::ReadProfile(const Payload &payload) {
 
   Profile profile;
 
-  if (user_followings != std::nullopt) {
+  if ((user_followings != std::nullopt) && (user_followings.value() != kInit)) {
     profile.profile_followings = deserialize(user_followings.value(), ',');
   }
 
-  if (user_followers != std::nullopt) {
+  if ((user_followers != std::nullopt) && (user_followers != kInit)) {
     profile.profile_followers = deserialize(user_followers.value(), ',');
   }
 
@@ -142,6 +142,17 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload) {
   std::string current_warble_id = std::to_string(warble_id_);
   warble_id_++;
 
+  Warble new_warble;
+  new_warble.set_username(user_name);
+  new_warble.set_text(text);
+  new_warble.set_id(current_warble_id);
+  new_warble.set_parent_id(reply_to);
+  new_warble.mutable_timestamp()->set_seconds(time.tv_sec);
+  new_warble.mutable_timestamp()->set_useconds(time.tv_usec);
+
+  std::string warble_key = kWarblePrefix + current_warble_id;
+  kv_store_->Put(warble_key, new_warble.SerializeAsString());
+
   // Create key vector
   // 0: warble list for user_name
   // 1: Optional. warble list for reply_to
@@ -155,33 +166,25 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload) {
 
   StringOptionalVector value_vector = kv_store_->Get(key_vector);
 
-  std::string warble_key = kWarblePrefix + current_warble_id;
-
   StringOptional user_warbles = value_vector.at(0);
   std::string new_user_warbles = current_warble_id;
-  if (user_warbles != std::nullopt) {
+  if ((user_warbles != std::nullopt) && (user_warbles.value() != kInit)) {
     new_user_warbles = user_warbles.value() + "," + new_user_warbles;
   }
 
-  kv_store_->Put(warble_key, text);
   kv_store_->Put(user_warble_key, new_user_warbles);
 
   if (reply_to != "") {
     StringOptional warble_thread = value_vector.at(1);
     std::string new_warble_thread = current_warble_id;
-    if (warble_thread != std::nullopt) {
+    if ((warble_thread != std::nullopt) && (warble_thread.value() != "")) {
       new_warble_thread = warble_thread.value() + "," + new_warble_thread;
     }
     kv_store_->Put(warble_thread_key, new_warble_thread);
   }
 
   WarbleReply reply;
-  reply.mutable_warble()->set_username(user_name);
-  reply.mutable_warble()->set_text(text);
-  reply.mutable_warble()->set_id(current_warble_id);
-  reply.mutable_warble()->set_parent_id(reply_to);
-  reply.mutable_warble()->mutable_timestamp()->set_seconds(time.tv_sec);
-  reply.mutable_warble()->mutable_timestamp()->set_useconds(time.tv_usec);
+  reply.mutable_warble()->CopyFrom(new_warble);
 
   Payload reply_payload;
   reply_payload.PackFrom(reply);

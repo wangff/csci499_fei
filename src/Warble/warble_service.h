@@ -16,6 +16,9 @@ class WarbleService : public WarbleServiceAbstraction {
   const std::string kWarblePrefix = "warble_";
   const std::string kWarbleThreadPrefix = "warble_thread_";
 
+  // The label to show the user's profile has been initialization.
+  const std::string kInit = "INIT";
+
   // Constructor with the parameter of StoragePtr.
   // StoragePtr used by Warble to communicate with KeyValueStore.
   explicit WarbleService(const StoragePtr &storage_ptr)
