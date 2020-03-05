@@ -117,6 +117,18 @@ PayloadOptional WarbleService::ReadProfile(const Payload &payload) {
   StringOptional user_followings = value_vector.at(0);
   StringOptional user_followers = value_vector.at(1);
 
+  // Check if user_name and to_follow have been registered.
+  bool is_user_followings_registered =
+      (user_followings != std::nullopt) && (!user_followings.value().empty());
+  bool is_user_followers_registered =
+      (user_followers != std::nullopt) && (!user_followers.value().empty());
+
+  // If either user_name or to_follow has not been registered, reading profile
+  // operations will fail.
+  if (!is_user_followings_registered || !is_user_followers_registered) {
+    return PayloadOptional();
+  }
+
   Profile profile;
 
   if ((user_followings != std::nullopt) && (user_followings.value() != kInit)) {

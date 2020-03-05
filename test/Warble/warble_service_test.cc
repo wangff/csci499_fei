@@ -100,7 +100,7 @@ TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenCallFollowAndUserNameNotExist) {
 }
 
 // Test: user_name follow to_follow failed since to_follow has not been
-// registered. Expect: Return the empty PayloadOptional
+// registered. Expect: Return the empty PayloadOptional.
 TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenCallFollowAndToFollowNotExist) {
   std::string user_followings_key = "user_followings_user_Harry Potter";
   std::string to_follow_followers_key = "user_followers_user_Lord Voldmort";
@@ -178,9 +178,8 @@ TEST_F(WarbleTest, shouldPayloadWithValueWhenCallFollow) {
   EXPECT_TRUE(reply_payload.has_value());
 }
 
-// Test: Read user's profile that is empty.
-// Expected: The return profile with empty followings vector and followers
-// vector.
+// Test: Read user's profile when this user does not exist.
+// Expected: Return Empty.
 TEST_F(
     WarbleTest,
     shouldReturnEmptyProfileWhenReadProfileOfAUserWithoutAnyFollowerOrFollowing) {
@@ -188,7 +187,7 @@ TEST_F(
   std::string to_follow_followers_key = "user_followers_user_Harry Potter";
   StringVector mock_key_vector = {user_followings_key, to_follow_followers_key};
 
-  StringOptionalVector mock_value_vector = {StringOptional(), StringOptional()};
+  StringOptionalVector mock_value_vector = {StringOptional("INIT"), StringOptional("INIT")};
 
   EXPECT_CALL(*mock_store_, Get(mock_key_vector))
       .WillOnce(Return(mock_value_vector));
@@ -210,6 +209,27 @@ TEST_F(
 
   EXPECT_EQ(0, actual_profile_followings.size());
   EXPECT_EQ(0, actual_profile_followers.size());
+}
+
+// Test: Read user's profile that is empty.
+// Expected: Return the empty PayloadOptional.
+TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenReadProfileOfAUserNotExist) {
+  std::string user_followings_key = "user_followings_user_Harry Potter";
+  std::string to_follow_followers_key = "user_followers_user_Harry Potter";
+  StringVector mock_key_vector = {user_followings_key, to_follow_followers_key};
+
+  StringOptionalVector mock_value_vector = {StringOptional(), StringOptional()};
+
+  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
+      .WillOnce(Return(mock_value_vector));
+
+  Payload mock_payload;
+  ProfileRequest request;
+  request.set_username("Harry Potter");
+  mock_payload.PackFrom(request);
+  PayloadOptional reply_payload_opt = warble_->ReadProfile(mock_payload);
+
+  EXPECT_FALSE(reply_payload_opt.has_value());
 }
 
 // Test: Read user's profile that is not empty.
