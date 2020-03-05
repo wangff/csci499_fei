@@ -170,7 +170,8 @@ int main(int argc, char** argv) {
     std::string output_str;
 
     if (!res_payload_opt.has_value()) {
-      output_str = "Following failed";
+      output_str =
+          "Following failed! Either followee or follower may not exist! \n";
     } else {
       output_str =
           "User: " + FLAGS_user + " follow: " + "User: " + FLAGS_follow + ".\n";

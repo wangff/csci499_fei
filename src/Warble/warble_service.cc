@@ -70,6 +70,18 @@ PayloadOptional WarbleService::Follow(const Payload &payload) {
   std::string new_to_follow_followers = user_name;
   std::string new_user_followings = to_follow;
 
+  // Check if user_name and to_follow have been registered.
+  bool is_user_name_registered =
+      (user_followings != std::nullopt) && (!user_followings.value().empty());
+  bool is_to_follow_registered =
+      (to_follow_followers != std::nullopt) && (!to_follow_followers.value().empty());
+
+  // If either user_name or to_follow has not been registered, following
+  // operations will fail.
+  if (!is_user_name_registered || !is_to_follow_registered) {
+    return PayloadOptional();
+  }
+
   if ((user_followings != std::nullopt) && (user_followings.value() != kInit)) {
     new_user_followings = user_followings.value() + "," + new_user_followings;
   }
