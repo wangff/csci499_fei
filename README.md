@@ -27,6 +27,17 @@ The code will generated four execturables.
 
 \- warble: the warble application
 
+### Run unit tests
+
+The binary file fan_unit_tests includes unit tests suits for all of the modules: KeyValue Storage, Func and Warble.
+
+```bash
+# In the bin directory
+./faas_unit_tests
+```
+
+
+
 ### Execution Sequence
 
 Open three terminal to start three excutables. 
