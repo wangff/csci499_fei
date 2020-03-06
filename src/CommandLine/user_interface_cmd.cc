@@ -191,7 +191,7 @@ int main(int argc, char** argv) {
         func_service_client.Event(event_type, &payload);
 
     if (!res_payload_opt.has_value()) {
-      output_str = "Reading thread of warble " + warble_id + " failed.";
+      output_str = "Reading thread of warble " + warble_id + " failed. The warble ID does not exist. \n";
       logAndPrint(output_str);
       exit(0);
     }

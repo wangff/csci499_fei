@@ -434,13 +434,36 @@ TEST_F(WarbleTest,
   EXPECT_EQ(reply.mutable_warble()->parent_id(), request.parent_id());
 }
 
+// Test: ReadThread of a warble with id "123" that does not exist.
+// Expected: Return empty PayloadOptional.
+TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenReadThreadNotExist) {
+  std::string mock_warble_thread_key = "warble_thread_warble_123";
+  std::string mock_warble_key = "warble_123";
+  StringVector mock_key_vector = {mock_warble_thread_key, mock_warble_key};
+  StringOptionalVector mock_value_vector = {StringOptional(), StringOptional()};
+
+  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
+      .WillOnce(Return(mock_value_vector));
+
+  ReadRequest request;
+  request.set_warble_id("123");
+
+  Payload mock_payload;
+  mock_payload.PackFrom(request);
+
+  PayloadOptional reply_payload_opt = warble_->ReadThread(mock_payload);
+
+  EXPECT_FALSE(reply_payload_opt.has_value());
+}
+
 // Test: ReadThread of a warble with id "123" that has no replies.
 // Expected: ReadThread function return the no warbles.
 TEST_F(WarbleTest,
        shouldReturnEmptyStringVectorWhenReadThreadWithoutAnyReplies) {
   std::string mock_warble_thread_key = "warble_thread_warble_123";
-  StringVector mock_key_vector = {mock_warble_thread_key};
-  StringOptionalVector mock_value_vector = {StringOptional()};
+  std::string mock_warble_key = "warble_123";
+  StringVector mock_key_vector = {mock_warble_thread_key, mock_warble_key};
+  StringOptionalVector mock_value_vector = {"", "mock warble 123 string"};
 
   EXPECT_CALL(*mock_store_, Get(mock_key_vector))
       .WillOnce(Return(mock_value_vector));
@@ -469,8 +492,9 @@ TEST_F(
     WarbleTest,
     shouldReturnTheStringVectorOfRepliesWhenReadThreadOfWarbleHasSomeReplies) {
   std::string mock_warble_thread_key = "warble_thread_warble_123";
-  StringVector mock_key_vector = {mock_warble_thread_key};
-  StringOptionalVector mock_value_vector = {"1,2,3"};
+  std::string mock_warble_key = "warble_123";
+  StringVector mock_key_vector = {mock_warble_thread_key, mock_warble_key};
+  StringOptionalVector mock_value_vector = {"1,2,3", "mock warble 123 string"};
 
   EXPECT_CALL(*mock_store_, Get(mock_key_vector))
       .WillOnce(Return(mock_value_vector));

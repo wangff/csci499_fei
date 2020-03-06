@@ -230,8 +230,19 @@ PayloadOptional WarbleService::ReadThread(const Payload &payload) {
   StringVector warbles_str_vector;
   std::string warble_thread_key =
       kWarbleThreadPrefix + kWarblePrefix + warble_id;
-  StringVector key_vector = {warble_thread_key};
-  StringOptional warble_ids_opt = kv_store_->Get(key_vector).at(0);
+  std::string warble_key = kWarblePrefix + warble_id;
+  StringVector key_vector = {warble_thread_key, warble_key};
+  StringOptionalVector value_vector = kv_store_->Get(key_vector);
+  StringOptional warble_ids_opt = value_vector.at(0);
+  StringOptional warble = value_vector.at(1);
+
+  // Check if this warble exists.
+  bool is_warble_exist = (warble != std::nullopt) && (!warble.value().empty());
+
+  if (not is_warble_exist) {
+    return PayloadOptional();
+  }
+
   std::string warble_ids_str = "";
   if (warble_ids_opt != std::nullopt && warble_ids_opt.has_value()) {
     warble_ids_str = warble_ids_opt.value();
