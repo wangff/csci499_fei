@@ -137,7 +137,7 @@ int main(int argc, char** argv) {
         func_service_client.Event(event_type, &payload);
 
     if (!res_payload_opt.has_value()) {
-      output_str = "Warbling a text failed.";
+      output_str = "Warbling a text failed. The user has not been registered. \n";
       logAndPrint(output_str);
       exit(0);
     }

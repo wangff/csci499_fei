@@ -285,6 +285,28 @@ TEST_F(WarbleTest,
   }
 }
 
+// Test: a user warbles a text, but this user does not exsit.
+// Expected : return an empty PayloadOptional
+TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenWarbleWithAUserNotExist) {
+  std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
+  StringVector key_vector = {mock_user_warbles_key};
+
+  StringOptionalVector mock_value_vector = {StringOptional()};
+  EXPECT_CALL(*mock_store_, Get(key_vector))
+      .WillOnce(Return(mock_value_vector));
+
+  WarbleRequest request;
+  request.set_username("Harry Potter");
+  request.set_text("It's my first warble.");
+
+  Payload mock_payload;
+  mock_payload.PackFrom(request);
+
+  PayloadOptional reply_payload_opt = warble_->WarbleText(mock_payload);
+
+  EXPECT_FALSE(reply_payload_opt.has_value());
+}
+
 // Test: a user warbles his/her first warble without reply to any warbles.
 // Expected: Return New Warble with the same username, text, id, parent_id with
 // the request information.
@@ -293,7 +315,7 @@ TEST_F(WarbleTest,
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
   StringVector key_vector = {mock_user_warbles_key};
 
-  StringOptionalVector mock_value_vector = {StringOptional()};
+  StringOptionalVector mock_value_vector = {StringOptional("INIT")};
   EXPECT_CALL(*mock_store_, Get(key_vector))
       .WillOnce(Return(mock_value_vector));
 

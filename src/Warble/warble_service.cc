@@ -163,20 +163,6 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload) {
   std::string text = request.text();
   std::string reply_to = request.parent_id();
 
-  std::string current_warble_id = std::to_string(warble_id_);
-  warble_id_++;
-
-  Warble new_warble;
-  new_warble.set_username(user_name);
-  new_warble.set_text(text);
-  new_warble.set_id(current_warble_id);
-  new_warble.set_parent_id(reply_to);
-  new_warble.mutable_timestamp()->set_seconds(time.tv_sec);
-  new_warble.mutable_timestamp()->set_useconds(time.tv_usec);
-
-  std::string warble_key = kWarblePrefix + current_warble_id;
-  kv_store_->Put(warble_key, new_warble.SerializeAsString());
-
   // Create key vector
   // 0: warble list for user_name
   // 1: Optional. warble list for reply_to
@@ -191,6 +177,27 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload) {
   StringOptionalVector value_vector = kv_store_->Get(key_vector);
 
   StringOptional user_warbles = value_vector.at(0);
+
+  bool is_user_exist = (user_warbles.has_value()) && (!user_warbles.value().empty());
+
+  if (!is_user_exist) {
+    return PayloadOptional();
+  }
+
+  std::string current_warble_id = std::to_string(warble_id_);
+  warble_id_++;
+
+  Warble new_warble;
+  new_warble.set_username(user_name);
+  new_warble.set_text(text);
+  new_warble.set_id(current_warble_id);
+  new_warble.set_parent_id(reply_to);
+  new_warble.mutable_timestamp()->set_seconds(time.tv_sec);
+  new_warble.mutable_timestamp()->set_useconds(time.tv_usec);
+
+  std::string warble_key = kWarblePrefix + current_warble_id;
+  kv_store_->Put(warble_key, new_warble.SerializeAsString());
+
   std::string new_user_warbles = current_warble_id;
   if ((user_warbles != std::nullopt) && (user_warbles.value() != kInit)) {
     new_user_warbles = user_warbles.value() + "," + new_user_warbles;
