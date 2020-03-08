@@ -80,7 +80,6 @@ int main(int argc, char** argv) {
   bool flag_profile_not_set =
       gflags::GetCommandLineFlagInfoOrDie("profile").is_default;
 
-  std::cout << "Hello Warble.\n";
   // ./warble --hook "event type:function str"
   if (!flag_hook_not_set) {
     auto splited_vector = split(FLAGS_hook, ':');
@@ -249,5 +248,9 @@ int main(int argc, char** argv) {
     for (const auto& following : followings) {
       logAndPrint(following+"\n");
     }
+  } else {
+    std::string output_str =
+        "Invalid commad; \nPlease refer to ./warble --help.\n";
+    logAndPrint(output_str);
   }
 }

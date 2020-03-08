@@ -27,7 +27,7 @@ void FuncServiceClient::Hook(const int event_type,
     LOG(INFO) << "HooKRequest RPC succeed, EventType: " << event_type;
   } else {
     // Fail to put key-value pair.
-    LOG(ERROR) << "HooKRequest RPC failed, Key: " << event_type << std::endl
+    LOG(WARNING) << "HooKRequest RPC failed, Key: " << event_type << std::endl
                << "Error: " << status.error_code() << ": "
                << status.error_message();
   }
@@ -55,7 +55,7 @@ void FuncServiceClient::UnHook(const int event_type) {
     LOG(INFO) << "UnhookRequest RPC succeed, EventType: " << event_type;
   } else {
     // Fail to put key-value pair.
-    LOG(ERROR) << "UnhookRequest RPC failed, Key: " << event_type << std::endl
+    LOG(WARNING) << "UnhookRequest RPC failed, Key: " << event_type << std::endl
                << "Error: " << status.error_code() << ": "
                << status.error_message();
   }
@@ -84,7 +84,7 @@ OptionalPayload FuncServiceClient::Event(const int event_type, Payload *payload)
     return reply.payload();
   } else {
     // Fail to execute the event.
-    LOG(ERROR) << "Event execution failed, Key: " << event_type << std::endl
+    LOG(WARNING) << "Event execution failed, Key: " << event_type << std::endl
                << "Error: " << status.error_code() << ": "
                << status.error_message();
     return OptionalPayload();
