@@ -1,38 +1,158 @@
-# RobustSoftware
-CSCI499 Robust Software Design and Implementation
+# CSCI499 Robust Software Design and Implementation
 
-# Environmnt
+#Description
 
-###Vagrant box
+This  is a course project, which includes three major parts: Faas platform, Warble application, KeyValue backend storage.
 
-config.vm.box = "ubuntu/bionic64"
+- Faas platform aka. func in the context of this project: a basic Function-as-a-Service platform.
+- Warble application: an application which runs on the Func and have the similiar basic functionality of Twitter.
+- KeyValue backend storage: a backend data storage which stores data in the format of Key-Value pair.
 
-###Dependency Package
+#Table of Content
 
-All my depency packages should be install globally.
+[toc]
 
-- gflags
-- glog
-- Protobuf
-- gRPC
-- GTest
-- GMock
+#Setup Environmnt
 
-# Compile
+## Setup Vagrant box
+
+The Vagrantfile in the respository. 
+
+After clone the respository to the local, move out Vagrantfile from the repository root directory to make it in the same level directory with the project.
+
+```bash
+# In the parent directory of the project
+$ vagrant up
+$ vagrant ssh
+$ cd /vagrant/csci499_fei-master
+
+# Now, we are in the root directory of the project on the virtaul machine.
+```
+
+## Setup the compiling tool - Cmake
+
+```bash
+# Install PPA
+# install PPA
+$ sudo apt-get install software-properties-common
+$ sudo add-apt-repository ppa:george-edison55/cmake-3.x
+$ sudo apt-get update
+
+# Go to the user's root directory
+$ cd ~
+
+# Install g++
+$ sudo apt-get install g++
+
+$ sudo apt-get install build-essential
+
+# Install OPENSSL
+$ sudo apt install libssl-dev
+
+# Download and install cmake
+$ wget https://github.com/Kitware/CMake/releases/download/v3.17.0-rc2/cmake-3.17.0-rc2.tar.gz
+$ tar -zxvf cmake-3.17.0-rc2.tar.gz
+$ cd cmake-3.17.0-rc2/
+$ ./bootstrap
+$ make
+$ sudo make install
+```
+
+##Dependency Package
+
+All my dependencies packages should be install globally.
+
+### Setup gflags
+
+```bash
+sudo apt-get install libgflags-dev
+```
+
+###Setup glog
+
+```bash
+# Sine I need version 0.4.0, so will build from source code of new release
+$ cd ~
+$ git clone https://github.com/google/glog.git
+$ cd glog
+$ mkdir cmake/build
+$ cd cmake/build
+$ cmake ../..
+$ make
+$ sudo make install
+```
+
+###Setup GTest
+
+```bash
+$ sudo apt-get install libgtest-dev
+
+# compile gtest library
+$ cd /usr/src/gtest
+$ sudo cmake CMakeLists.txt
+$ sudo make
+
+# copy or symlink libgtest.a and libgtest_main.a to your /usr/lib folder
+$ sudo cp *.a /usr/lib
+```
+
+###Setup GMock
+
+```bash
+$ sudo apt-get install google-mock
+$ cd /usr/src/gmock
+$ sudo cmake CMakeLists.txt
+$ sudo make
+$ sudo cp *.a /usr/lib
+```
+
+###Setup gRPC and Protobuf
+
+####Install pre-requisites
+
+```bash
+ $ cd ~
+ $ sudo apt-get install build-essential autoconf libtool pkg-config
+ $ sudo apt-get install clang-5.0 libc++-dev
+```
+
+#### Clone the repository (including submodules)
+
+```bash
+ $ git clone -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc
+ $ cd grpc
+ $ git submodule update --init
+```
+
+#### Compile and install gRPC and protobuf
+
+```bash
+# This will compile and install both grpc and protobuf
+$ cd ~
+$ sudo apt install golang-go
+$ cd grpc
+$ mkdir cmake/build
+$ cd cmake/build
+$ cmake ../..
+$ make
+$ sudo make install
+```
+
+#Compile the project
 
 Use cmake to do compiling.
 
 ```bash
 # In the root directory of the project
-mkdir build
-cd build
-cmake ..
-make
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
 ```
 
-# Run
+##Run the project
 
-###All exectuables will be in the bin directory.
+All exectuables will be in the bin directory.
 
 The code will generated four execturables.
 
@@ -44,18 +164,16 @@ The code will generated four execturables.
 
 \- warble: the warble application
 
-### Run unit tests
+##Run unit tests
 
 The binary file fan_unit_tests includes unit tests suits for all of the modules: KeyValue Storage, Func and Warble.
 
 ```bash
 # In the bin directory
-./faas_unit_tests
+$ ./faas_unit_tests
 ```
 
-
-
-### Execution Sequence
+##Execution Sequence
 
 Open three terminal to start three excutables. 
 
@@ -63,45 +181,45 @@ Open three terminal to start three excutables.
 
    ```bash
    # In the bin directory
-   ./kvstore_server
+   $ ./kvstore_server
    ```
 
 2. Open 2nd terminal to run the Func.
 
    ```bash
    # In the bin directory
-   ./func_server
+   $ ./func_server
    ```
 
 3. Open 3rd terminal to run do the configuration and run warble.
 
    ```bash
    # In the bin directory
-   ./configure_hooking
+   $ ./configure_hooking
    ```
 
-### Run Warble Application (use cases)
+#Usage: Run Warble Application
 
 Now, we could start run warble application.
 
 - Register User
 
-  Exp: ./warble --registeruer --"user_name"
+  e.g.: ./warble --registeruer "user_name"
 
 - Warble a Text
 
-  Exp: ./warble --user "user_name" --warble "text"
+  e.g.: ./warble --user "user_name" --warble "text"
 
-  Exp: ./warble --user "user_name" --warble "text" --reply "warble_id"
+  e.g.: ./warble --user "user_name" --warble "text" --reply "warble_id"
 
 - Follow
 
-  Exp: ./warble --user "user_name_1" --follow "user_name_2"
+  e.g.: ./warble --user "user_name_1" --follow "user_name_2"
 
 - Read a Thread
 
-  Exp: ./warble --read "warble_id"
+  e.g.: ./warble --read "warble_id"
 
 - Read User's Profile
 
-  Exp: ./warble --user "username" --profile
+  e.g.: ./warble --user "user_name" --profile
