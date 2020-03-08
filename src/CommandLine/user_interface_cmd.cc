@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
     request.set_username(FLAGS_user);
     request.set_text(FLAGS_warble);
     std::string output_str =
-        "User: " + FLAGS_user + "warble: " + FLAGS_warble + ".\n";
+        "User: " + FLAGS_user + "\nwarble: " + FLAGS_warble + ".\n";
     logAndPrint(output_str);
     if (!flag_reply_not_set) {
       request.set_parent_id(FLAGS_reply);
@@ -136,7 +136,7 @@ int main(int argc, char** argv) {
         func_service_client.Event(event_type, &payload);
 
     if (!res_payload_opt.has_value()) {
-      output_str = "Warbling a text failed. The user has not been registered. \n";
+      output_str = "Warbling a text failed. Either the user or the reply_to warble does not exist. \n";
       logAndPrint(output_str);
       exit(0);
     }

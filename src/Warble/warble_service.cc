@@ -172,16 +172,32 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload) {
   if (reply_to != "") {
     warble_thread_key = kWarbleThreadPrefix + kWarblePrefix + reply_to;
     key_vector.push_back(warble_thread_key);
+
+    // Used to check whether reply_to warble exists.
+    std::string warble_key = kWarblePrefix + reply_to;
+    key_vector.push_back(warble_key);
   }
 
   StringOptionalVector value_vector = kv_store_->Get(key_vector);
 
+  // Check whether user_name has been registered.
   StringOptional user_warbles = value_vector.at(0);
 
   bool is_user_exist = (user_warbles.has_value()) && (!user_warbles.value().empty());
 
   if (!is_user_exist) {
     return PayloadOptional();
+  }
+
+  // Check whether reply_to warble does exist.
+  if(reply_to != "") {
+    StringOptional warble = value_vector.at(2);
+
+    bool is_warble_exist = (warble != std::nullopt) && (!warble.value().empty());
+
+    if (not is_warble_exist) {
+      return PayloadOptional();
+    }
   }
 
   std::string current_warble_id = std::to_string(warble_id_);

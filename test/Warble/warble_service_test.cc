@@ -285,7 +285,7 @@ TEST_F(WarbleTest,
   }
 }
 
-// Test: a user warbles a text, but this user does not exsit.
+// Test: a user warbles a text, but this user does not exist.
 // Expected : return an empty PayloadOptional
 TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenWarbleWithAUserNotExist) {
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
@@ -298,6 +298,31 @@ TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenWarbleWithAUserNotExist) {
   WarbleRequest request;
   request.set_username("Harry Potter");
   request.set_text("It's my first warble.");
+
+  Payload mock_payload;
+  mock_payload.PackFrom(request);
+
+  PayloadOptional reply_payload_opt = warble_->WarbleText(mock_payload);
+
+  EXPECT_FALSE(reply_payload_opt.has_value());
+}
+
+// Test: a user warbles a text that replies to another warble, but this reply_to warble does not exist.
+// Expected : return an empty PayloadOptional
+TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenReplyToNotExist) {
+  std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
+  std::string mock_warble_thread_key = "warble_thread_warble_5";
+  std::string mock_reply_to_warble_key = "warble_5";
+  StringVector key_vector = {mock_user_warbles_key, mock_warble_thread_key, mock_reply_to_warble_key};
+
+  StringOptionalVector mock_value_vector = {"1,2,3","",""};
+  EXPECT_CALL(*mock_store_, Get(key_vector))
+      .WillOnce(Return(mock_value_vector));
+
+  WarbleRequest request;
+  request.set_username("Harry Potter");
+  request.set_text("It's my first warble.");
+  request.set_parent_id("5");
 
   Payload mock_payload;
   mock_payload.PackFrom(request);
@@ -356,9 +381,10 @@ TEST_F(WarbleTest,
   warble_->warble_id_ = 100;
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
   std::string mock_warble_thread_key = "warble_thread_warble_3";
-  StringVector key_vector = {mock_user_warbles_key, mock_warble_thread_key};
+  std::string mock_warble_key = "warble_3";
+  StringVector key_vector = {mock_user_warbles_key, mock_warble_thread_key, mock_warble_key};
 
-  StringOptionalVector mock_value_vector = {"1", StringOptional()};
+  StringOptionalVector mock_value_vector = {"1", StringOptional(), "It's the No. 3 warble string"};
   EXPECT_CALL(*mock_store_, Get(key_vector))
       .WillOnce(Return(mock_value_vector));
 
@@ -400,9 +426,10 @@ TEST_F(WarbleTest,
   warble_->warble_id_ = 100;
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
   std::string mock_warble_thread_key = "warble_thread_warble_3";
-  StringVector key_vector = {mock_user_warbles_key, mock_warble_thread_key};
+  std::string mock_warble_key = "warble_3";
+  StringVector key_vector = {mock_user_warbles_key, mock_warble_thread_key, mock_warble_key};
 
-  StringOptionalVector mock_value_vector = {"1", "4,5,6"};
+  StringOptionalVector mock_value_vector = {"1", "4,5,6", "It's No.3 warble string"};
   EXPECT_CALL(*mock_store_, Get(key_vector))
       .WillOnce(Return(mock_value_vector));
 
