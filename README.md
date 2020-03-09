@@ -24,22 +24,17 @@ After clone the respository to the local, move out Vagrantfile from the reposito
 # In the parent directory of the project
 $ vagrant up
 $ vagrant ssh
-$ cd /vagrant/csci499_fei-master
-
-# Now, we are in the root directory of the project on the virtaul machine.
 ```
 
 ## Setup the compiling tool - Cmake
 
 ```bash
-# Install PPA
-# install PPA
-$ sudo apt-get install software-properties-common
-$ sudo add-apt-repository ppa:george-edison55/cmake-3.x
-$ sudo apt-get update
-
 # Go to the user's root directory
 $ cd ~
+
+# Install PPA
+$ sudo apt-get install software-properties-common
+$ sudo apt-get update
 
 # Install g++
 $ sudo apt-get install g++
@@ -112,7 +107,7 @@ $ sudo cp *.a /usr/lib
 
 ```bash
  $ cd ~
- $ sudo apt-get install build-essential autoconf libtool pkg-config
+ $ sudo apt-get install autoconf libtool pkg-config
  $ sudo apt-get install clang-5.0 libc++-dev
 ```
 
@@ -143,6 +138,9 @@ $ sudo make install
 Use cmake to do compiling.
 
 ```bash
+# Go to the root director of the project
+$ cd /vagrant/csci499_fei-master
+
 # In the root directory of the project
 $ mkdir build
 $ cd build
