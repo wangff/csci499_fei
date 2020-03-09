@@ -201,11 +201,16 @@ int main(int argc, char** argv) {
 
     output_str = "Reads the warble thread starting at " + FLAGS_read + ".\n";
     logAndPrint(output_str);
-    for (const auto& warble : reply.warbles()) {
+    for (int i = 0; i < reply.warbles_size(); i++) {
+      Warble warble = reply.warbles(i);
       output_str = "Warble Id: " + warble.id() +
                    "; User: " + warble.username() +
-                   "; Warble Text: " + warble.text() +
-                   "; Warble Reply To " + warble.parent_id() + ".\n";
+                   "; Warble Text: " + warble.text();
+      if (i == 0) {
+        output_str += "\n";
+      } else {
+        output_str += "; Warble Reply To " + warble.parent_id() + ".\n";
+      }
       logAndPrint(output_str);
     }
   }
