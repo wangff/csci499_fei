@@ -77,6 +77,50 @@ TEST_F(WarbleTest,
   EXPECT_FALSE(reply_payload.has_value());
 }
 
+// Test: user_name follow to_follow failed since user_name has not been
+// registered. Expect: Return the empty PayloadOptional
+TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenCallFollowAndUserNameNotExist) {
+  std::string user_followings_key = "user_followings_user_Harry Potter";
+  std::string to_follow_followers_key = "user_followers_user_Lord Voldmort";
+
+  StringVector mock_key_vector = {user_followings_key, to_follow_followers_key};
+  StringOptionalVector mock_value_vector = {StringOptional(),
+                                            StringOptional("INIT")};
+
+  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
+      .WillOnce(Return(mock_value_vector));
+
+  Payload mock_payload;
+  FollowRequest request;
+  request.set_username("Harry Potter");
+  request.set_to_follow("Lord Voldmort");
+  mock_payload.PackFrom(request);
+  PayloadOptional reply_payload_opt = warble_->Follow(mock_payload);
+  EXPECT_FALSE(reply_payload_opt.has_value());
+}
+
+// Test: user_name follow to_follow failed since to_follow has not been
+// registered. Expect: Return the empty PayloadOptional.
+TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenCallFollowAndToFollowNotExist) {
+  std::string user_followings_key = "user_followings_user_Harry Potter";
+  std::string to_follow_followers_key = "user_followers_user_Lord Voldmort";
+
+  StringVector mock_key_vector = {user_followings_key, to_follow_followers_key};
+  StringOptionalVector mock_value_vector = {StringOptional("INIT"),
+                                            StringOptional()};
+
+  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
+      .WillOnce(Return(mock_value_vector));
+
+  Payload mock_payload;
+  FollowRequest request;
+  request.set_username("Harry Potter");
+  request.set_to_follow("Lord Voldmort");
+  mock_payload.PackFrom(request);
+  PayloadOptional reply_payload_opt = warble_->Follow(mock_payload);
+  EXPECT_FALSE(reply_payload_opt.has_value());
+}
+
 // Test: user_name follow to_follow when both user_name and to_follow have empty
 // profile. Expected: Return the payload with value.
 TEST_F(WarbleTest, shouldPayloadWithValueWhenCallFollowFirstTime) {
@@ -84,7 +128,7 @@ TEST_F(WarbleTest, shouldPayloadWithValueWhenCallFollowFirstTime) {
   std::string to_follow_followers_key = "user_followers_user_Lord Voldmort";
 
   StringVector mock_key_vector = {user_followings_key, to_follow_followers_key};
-  StringOptionalVector mock_value_vector = {StringOptional(), StringOptional()};
+  StringOptionalVector mock_value_vector = {StringOptional("INIT"), StringOptional("INIT")};
 
   EXPECT_CALL(*mock_store_, Get(mock_key_vector))
       .WillOnce(Return(mock_value_vector));
@@ -134,9 +178,8 @@ TEST_F(WarbleTest, shouldPayloadWithValueWhenCallFollow) {
   EXPECT_TRUE(reply_payload.has_value());
 }
 
-// Test: Read user's profile that is empty.
-// Expected: The return profile with empty followings vector and followers
-// vector.
+// Test: Read user's profile when this user does not exist.
+// Expected: Return Empty.
 TEST_F(
     WarbleTest,
     shouldReturnEmptyProfileWhenReadProfileOfAUserWithoutAnyFollowerOrFollowing) {
@@ -144,7 +187,7 @@ TEST_F(
   std::string to_follow_followers_key = "user_followers_user_Harry Potter";
   StringVector mock_key_vector = {user_followings_key, to_follow_followers_key};
 
-  StringOptionalVector mock_value_vector = {StringOptional(), StringOptional()};
+  StringOptionalVector mock_value_vector = {StringOptional("INIT"), StringOptional("INIT")};
 
   EXPECT_CALL(*mock_store_, Get(mock_key_vector))
       .WillOnce(Return(mock_value_vector));
@@ -166,6 +209,27 @@ TEST_F(
 
   EXPECT_EQ(0, actual_profile_followings.size());
   EXPECT_EQ(0, actual_profile_followers.size());
+}
+
+// Test: Read user's profile that is empty.
+// Expected: Return the empty PayloadOptional.
+TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenReadProfileOfAUserNotExist) {
+  std::string user_followings_key = "user_followings_user_Harry Potter";
+  std::string to_follow_followers_key = "user_followers_user_Harry Potter";
+  StringVector mock_key_vector = {user_followings_key, to_follow_followers_key};
+
+  StringOptionalVector mock_value_vector = {StringOptional(), StringOptional()};
+
+  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
+      .WillOnce(Return(mock_value_vector));
+
+  Payload mock_payload;
+  ProfileRequest request;
+  request.set_username("Harry Potter");
+  mock_payload.PackFrom(request);
+  PayloadOptional reply_payload_opt = warble_->ReadProfile(mock_payload);
+
+  EXPECT_FALSE(reply_payload_opt.has_value());
 }
 
 // Test: Read user's profile that is not empty.
@@ -221,6 +285,28 @@ TEST_F(WarbleTest,
   }
 }
 
+// Test: a user warbles a text, but this user does not exsit.
+// Expected : return an empty PayloadOptional
+TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenWarbleWithAUserNotExist) {
+  std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
+  StringVector key_vector = {mock_user_warbles_key};
+
+  StringOptionalVector mock_value_vector = {StringOptional()};
+  EXPECT_CALL(*mock_store_, Get(key_vector))
+      .WillOnce(Return(mock_value_vector));
+
+  WarbleRequest request;
+  request.set_username("Harry Potter");
+  request.set_text("It's my first warble.");
+
+  Payload mock_payload;
+  mock_payload.PackFrom(request);
+
+  PayloadOptional reply_payload_opt = warble_->WarbleText(mock_payload);
+
+  EXPECT_FALSE(reply_payload_opt.has_value());
+}
+
 // Test: a user warbles his/her first warble without reply to any warbles.
 // Expected: Return New Warble with the same username, text, id, parent_id with
 // the request information.
@@ -229,7 +315,7 @@ TEST_F(WarbleTest,
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
   StringVector key_vector = {mock_user_warbles_key};
 
-  StringOptionalVector mock_value_vector = {StringOptional()};
+  StringOptionalVector mock_value_vector = {StringOptional("INIT")};
   EXPECT_CALL(*mock_store_, Get(key_vector))
       .WillOnce(Return(mock_value_vector));
 
@@ -348,13 +434,36 @@ TEST_F(WarbleTest,
   EXPECT_EQ(reply.mutable_warble()->parent_id(), request.parent_id());
 }
 
+// Test: ReadThread of a warble with id "123" that does not exist.
+// Expected: Return empty PayloadOptional.
+TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenReadThreadNotExist) {
+  std::string mock_warble_thread_key = "warble_thread_warble_123";
+  std::string mock_warble_key = "warble_123";
+  StringVector mock_key_vector = {mock_warble_thread_key, mock_warble_key};
+  StringOptionalVector mock_value_vector = {StringOptional(), StringOptional()};
+
+  EXPECT_CALL(*mock_store_, Get(mock_key_vector))
+      .WillOnce(Return(mock_value_vector));
+
+  ReadRequest request;
+  request.set_warble_id("123");
+
+  Payload mock_payload;
+  mock_payload.PackFrom(request);
+
+  PayloadOptional reply_payload_opt = warble_->ReadThread(mock_payload);
+
+  EXPECT_FALSE(reply_payload_opt.has_value());
+}
+
 // Test: ReadThread of a warble with id "123" that has no replies.
 // Expected: ReadThread function return the no warbles.
 TEST_F(WarbleTest,
        shouldReturnEmptyStringVectorWhenReadThreadWithoutAnyReplies) {
   std::string mock_warble_thread_key = "warble_thread_warble_123";
-  StringVector mock_key_vector = {mock_warble_thread_key};
-  StringOptionalVector mock_value_vector = {StringOptional()};
+  std::string mock_warble_key = "warble_123";
+  StringVector mock_key_vector = {mock_warble_thread_key, mock_warble_key};
+  StringOptionalVector mock_value_vector = {"", "mock warble 123 string"};
 
   EXPECT_CALL(*mock_store_, Get(mock_key_vector))
       .WillOnce(Return(mock_value_vector));
@@ -383,8 +492,9 @@ TEST_F(
     WarbleTest,
     shouldReturnTheStringVectorOfRepliesWhenReadThreadOfWarbleHasSomeReplies) {
   std::string mock_warble_thread_key = "warble_thread_warble_123";
-  StringVector mock_key_vector = {mock_warble_thread_key};
-  StringOptionalVector mock_value_vector = {"1,2,3"};
+  std::string mock_warble_key = "warble_123";
+  StringVector mock_key_vector = {mock_warble_thread_key, mock_warble_key};
+  StringOptionalVector mock_value_vector = {"1,2,3", "mock warble 123 string"};
 
   EXPECT_CALL(*mock_store_, Get(mock_key_vector))
       .WillOnce(Return(mock_value_vector));

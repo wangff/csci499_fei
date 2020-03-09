@@ -70,6 +70,18 @@ PayloadOptional WarbleService::Follow(const Payload &payload) {
   std::string new_to_follow_followers = user_name;
   std::string new_user_followings = to_follow;
 
+  // Check if user_name and to_follow have been registered.
+  bool is_user_name_registered =
+      (user_followings != std::nullopt) && (!user_followings.value().empty());
+  bool is_to_follow_registered =
+      (to_follow_followers != std::nullopt) && (!to_follow_followers.value().empty());
+
+  // If either user_name or to_follow has not been registered, following
+  // operations will fail.
+  if (!is_user_name_registered || !is_to_follow_registered) {
+    return PayloadOptional();
+  }
+
   if ((user_followings != std::nullopt) && (user_followings.value() != kInit)) {
     new_user_followings = user_followings.value() + "," + new_user_followings;
   }
@@ -105,6 +117,18 @@ PayloadOptional WarbleService::ReadProfile(const Payload &payload) {
   StringOptional user_followings = value_vector.at(0);
   StringOptional user_followers = value_vector.at(1);
 
+  // Check if user_name and to_follow have been registered.
+  bool is_user_followings_registered =
+      (user_followings != std::nullopt) && (!user_followings.value().empty());
+  bool is_user_followers_registered =
+      (user_followers != std::nullopt) && (!user_followers.value().empty());
+
+  // If either user_name or to_follow has not been registered, reading profile
+  // operations will fail.
+  if (!is_user_followings_registered || !is_user_followers_registered) {
+    return PayloadOptional();
+  }
+
   Profile profile;
 
   if ((user_followings != std::nullopt) && (user_followings.value() != kInit)) {
@@ -139,20 +163,6 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload) {
   std::string text = request.text();
   std::string reply_to = request.parent_id();
 
-  std::string current_warble_id = std::to_string(warble_id_);
-  warble_id_++;
-
-  Warble new_warble;
-  new_warble.set_username(user_name);
-  new_warble.set_text(text);
-  new_warble.set_id(current_warble_id);
-  new_warble.set_parent_id(reply_to);
-  new_warble.mutable_timestamp()->set_seconds(time.tv_sec);
-  new_warble.mutable_timestamp()->set_useconds(time.tv_usec);
-
-  std::string warble_key = kWarblePrefix + current_warble_id;
-  kv_store_->Put(warble_key, new_warble.SerializeAsString());
-
   // Create key vector
   // 0: warble list for user_name
   // 1: Optional. warble list for reply_to
@@ -167,6 +177,27 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload) {
   StringOptionalVector value_vector = kv_store_->Get(key_vector);
 
   StringOptional user_warbles = value_vector.at(0);
+
+  bool is_user_exist = (user_warbles.has_value()) && (!user_warbles.value().empty());
+
+  if (!is_user_exist) {
+    return PayloadOptional();
+  }
+
+  std::string current_warble_id = std::to_string(warble_id_);
+  warble_id_++;
+
+  Warble new_warble;
+  new_warble.set_username(user_name);
+  new_warble.set_text(text);
+  new_warble.set_id(current_warble_id);
+  new_warble.set_parent_id(reply_to);
+  new_warble.mutable_timestamp()->set_seconds(time.tv_sec);
+  new_warble.mutable_timestamp()->set_useconds(time.tv_usec);
+
+  std::string warble_key = kWarblePrefix + current_warble_id;
+  kv_store_->Put(warble_key, new_warble.SerializeAsString());
+
   std::string new_user_warbles = current_warble_id;
   if ((user_warbles != std::nullopt) && (user_warbles.value() != kInit)) {
     new_user_warbles = user_warbles.value() + "," + new_user_warbles;
@@ -199,8 +230,19 @@ PayloadOptional WarbleService::ReadThread(const Payload &payload) {
   StringVector warbles_str_vector;
   std::string warble_thread_key =
       kWarbleThreadPrefix + kWarblePrefix + warble_id;
-  StringVector key_vector = {warble_thread_key};
-  StringOptional warble_ids_opt = kv_store_->Get(key_vector).at(0);
+  std::string warble_key = kWarblePrefix + warble_id;
+  StringVector key_vector = {warble_thread_key, warble_key};
+  StringOptionalVector value_vector = kv_store_->Get(key_vector);
+  StringOptional warble_ids_opt = value_vector.at(0);
+  StringOptional warble = value_vector.at(1);
+
+  // Check if this warble exists.
+  bool is_warble_exist = (warble != std::nullopt) && (!warble.value().empty());
+
+  if (not is_warble_exist) {
+    return PayloadOptional();
+  }
+
   std::string warble_ids_str = "";
   if (warble_ids_opt != std::nullopt && warble_ids_opt.has_value()) {
     warble_ids_str = warble_ids_opt.value();

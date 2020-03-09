@@ -1,6 +1,23 @@
 # RobustSoftware
 CSCI499 Robust Software Design and Implementation
 
+# Environmnt
+
+###Vagrant box
+
+config.vm.box = "ubuntu/bionic64"
+
+###Dependency Package
+
+All my depency packages should be install globally.
+
+- gflags
+- glog
+- Protobuf
+- gRPC
+- GTest
+- GMock
+
 # Compile
 
 Use cmake to do compiling.

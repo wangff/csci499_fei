@@ -137,7 +137,7 @@ int main(int argc, char** argv) {
         func_service_client.Event(event_type, &payload);
 
     if (!res_payload_opt.has_value()) {
-      output_str = "Warbling a text failed.";
+      output_str = "Warbling a text failed. The user has not been registered. \n";
       logAndPrint(output_str);
       exit(0);
     }
@@ -170,7 +170,8 @@ int main(int argc, char** argv) {
     std::string output_str;
 
     if (!res_payload_opt.has_value()) {
-      output_str = "Following failed";
+      output_str =
+          "Following failed! Either followee or follower may not exist! \n";
     } else {
       output_str =
           "User: " + FLAGS_user + " follow: " + "User: " + FLAGS_follow + ".\n";
@@ -190,7 +191,7 @@ int main(int argc, char** argv) {
         func_service_client.Event(event_type, &payload);
 
     if (!res_payload_opt.has_value()) {
-      output_str = "Reading thread of warble " + warble_id + " failed.";
+      output_str = "Reading thread of warble " + warble_id + " failed. The warble ID does not exist. \n";
       logAndPrint(output_str);
       exit(0);
     }
@@ -227,7 +228,7 @@ int main(int argc, char** argv) {
         func_service_client.Event(event_type, &payload);
 
     if (!res_payload_opt.has_value()) {
-      output_str = "Getting user's profile failed.";
+      output_str = "Getting user's profile failed. The user has not been registered. \n";
       logAndPrint(output_str);
       exit(0);
     }
