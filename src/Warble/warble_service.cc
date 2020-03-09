@@ -259,13 +259,17 @@ PayloadOptional WarbleService::ReadThread(const Payload &payload) {
     return PayloadOptional();
   }
 
+  ReadReply reply;
+  Payload reply_payload;
+
+  // Add the start warble to the reply
+  auto w = reply.add_warbles();
+  w->ParseFromString(warble.value());
+
   std::string warble_ids_str = "";
   if (warble_ids_opt != std::nullopt && warble_ids_opt.has_value()) {
     warble_ids_str = warble_ids_opt.value();
   }
-
-  ReadReply reply;
-  Payload reply_payload;
 
   if (warble_ids_str.empty()) {
     reply_payload.PackFrom(reply);
@@ -274,6 +278,7 @@ PayloadOptional WarbleService::ReadThread(const Payload &payload) {
 
   StringVector warble_ids_vector = deserialize(warble_ids_str, ',');
   key_vector.clear();
+
   for (auto s : warble_ids_vector) {
     key_vector.push_back(kWarblePrefix + s);
   }

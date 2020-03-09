@@ -484,13 +484,23 @@ TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenReadThreadNotExist) {
 }
 
 // Test: ReadThread of a warble with id "123" that has no replies.
-// Expected: ReadThread function return the no warbles.
+// Expected: ReadThread function return this start warble.
 TEST_F(WarbleTest,
        shouldReturnEmptyStringVectorWhenReadThreadWithoutAnyReplies) {
   std::string mock_warble_thread_key = "warble_thread_warble_123";
   std::string mock_warble_key = "warble_123";
   StringVector mock_key_vector = {mock_warble_thread_key, mock_warble_key};
-  StringOptionalVector mock_value_vector = {"", "mock warble 123 string"};
+
+  Warble mock_warble;
+  timeval time;
+  gettimeofday(&time, NULL);
+  mock_warble.set_username("username");
+  mock_warble.set_text("I am warble No. 123");
+  mock_warble.set_id("123");
+  mock_warble.mutable_timestamp()->set_seconds(time.tv_sec);
+  mock_warble.mutable_timestamp()->set_useconds(time.tv_usec);
+
+  StringOptionalVector mock_value_vector = {"", mock_warble.SerializeAsString()};
 
   EXPECT_CALL(*mock_store_, Get(mock_key_vector))
       .WillOnce(Return(mock_value_vector));
@@ -509,7 +519,16 @@ TEST_F(WarbleTest,
   ReadReply reply;
   reply_payload.UnpackTo(&reply);
 
-  EXPECT_TRUE(reply.warbles().empty());
+  EXPECT_EQ(reply.warbles_size(),1);
+  Warble actual_warble = reply.warbles(0);
+  EXPECT_EQ(actual_warble.username(), mock_warble.username());
+  EXPECT_EQ(actual_warble.id(), mock_warble.id());
+  EXPECT_EQ(actual_warble.text(), mock_warble.text());
+  EXPECT_EQ(actual_warble.parent_id(), mock_warble.parent_id());
+  EXPECT_EQ(actual_warble.timestamp().seconds(),
+            mock_warble.timestamp().seconds());
+  EXPECT_EQ(actual_warble.timestamp().useconds(),
+            mock_warble.timestamp().useconds());
 }
 
 // Test: ReadThread of a warble with id "123" that has replies.
@@ -521,7 +540,17 @@ TEST_F(
   std::string mock_warble_thread_key = "warble_thread_warble_123";
   std::string mock_warble_key = "warble_123";
   StringVector mock_key_vector = {mock_warble_thread_key, mock_warble_key};
-  StringOptionalVector mock_value_vector = {"1,2,3", "mock warble 123 string"};
+
+  Warble mock_start_warble;
+  timeval time;
+  gettimeofday(&time, NULL);
+  mock_start_warble.set_username("username");
+  mock_start_warble.set_text("I am warble No. 123");
+  mock_start_warble.set_id("123");
+  mock_start_warble.mutable_timestamp()->set_seconds(time.tv_sec);
+  mock_start_warble.mutable_timestamp()->set_useconds(time.tv_usec);
+
+  StringOptionalVector mock_value_vector = {"1,2,3", mock_start_warble.SerializeAsString()};
 
   EXPECT_CALL(*mock_store_, Get(mock_key_vector))
       .WillOnce(Return(mock_value_vector));
@@ -532,6 +561,8 @@ TEST_F(
   mock_key_vector.push_back("warble_3");
 
   std::vector<Warble> mock_warbles;
+  mock_warbles.push_back(mock_start_warble);
+
   StringOptionalVector mock_warbles_as_str;
 
   for (int i = 3; i < 6; i++) {
@@ -569,9 +600,9 @@ TEST_F(
   EXPECT_EQ(std::to_string(reply.warbles_size()),
             std::to_string(mock_warbles.size()));
 
-  for (int i = 0; i < reply.warbles_size(); i++) {
-    Warble actual_warble = reply.warbles().Get(0);
-    Warble expected_warble = mock_warbles.at(0);
+  for (int i = 0; i < mock_warbles.size(); i++) {
+    Warble actual_warble = reply.warbles().Get(i);
+    Warble expected_warble = mock_warbles.at(i);
     EXPECT_EQ(actual_warble.username(), expected_warble.username());
     EXPECT_EQ(actual_warble.id(), expected_warble.id());
     EXPECT_EQ(actual_warble.text(), expected_warble.text());

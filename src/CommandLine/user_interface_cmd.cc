@@ -199,17 +199,11 @@ int main(int argc, char** argv) {
     ReadReply reply;
     res_payload.UnpackTo(&reply);
 
-    if (reply.warbles_size() == 0) {
-      output_str = "Warble " + warble_id + " has no replies.\n";
-      logAndPrint(output_str);
-      exit(0);
-    }
-
     output_str = "Reads the warble thread starting at " + FLAGS_read + ".\n";
     logAndPrint(output_str);
     for (const auto& warble : reply.warbles()) {
-      output_str = "User: " + warble.username() +
-                   "; Warble Id: " + warble.id() +
+      output_str = "Warble Id: " + warble.id() +
+                   "; User: " + warble.username() +
                    "; Warble Text: " + warble.text() +
                    "; Warble Reply To " + warble.parent_id() + ".\n";
       logAndPrint(output_str);
