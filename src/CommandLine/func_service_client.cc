@@ -28,8 +28,8 @@ void FuncServiceClient::Hook(const int event_type,
   } else {
     // Fail to put key-value pair.
     LOG(WARNING) << "HooKRequest RPC failed, Key: " << event_type << std::endl
-               << "Error: " << status.error_code() << ": "
-               << status.error_message();
+                 << "Error: " << status.error_code() << ": "
+                 << status.error_message();
   }
 }
 
@@ -56,13 +56,14 @@ void FuncServiceClient::UnHook(const int event_type) {
   } else {
     // Fail to put key-value pair.
     LOG(WARNING) << "UnhookRequest RPC failed, Key: " << event_type << std::endl
-               << "Error: " << status.error_code() << ": "
-               << status.error_message();
+                 << "Error: " << status.error_code() << ": "
+                 << status.error_message();
   }
 }
 
 // Send the event gRPC requests to execute the specified warble handler function
-OptionalPayload FuncServiceClient::Event(const int event_type, Payload *payload) {
+OptionalPayload FuncServiceClient::Event(const int event_type,
+                                         Payload *payload) {
   // Data we are sending to the server.
   EventRequest request;
   request.set_event_type(event_type);
@@ -85,8 +86,8 @@ OptionalPayload FuncServiceClient::Event(const int event_type, Payload *payload)
   } else {
     // Fail to execute the event.
     LOG(WARNING) << "Event execution failed, Key: " << event_type << std::endl
-               << "Error: " << status.error_code() << ": "
-               << status.error_message();
+                 << "Error: " << status.error_code() << ": "
+                 << status.error_message();
     return OptionalPayload();
   }
 }

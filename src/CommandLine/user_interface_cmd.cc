@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
   // Parse command line flags
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-//  FLAGS_alsologtostderr = 1;
+  //  FLAGS_alsologtostderr = 1;
 
   FuncServiceClient func_service_client(grpc::CreateChannel(
       "localhost:50001", grpc::InsecureChannelCredentials()));
@@ -136,7 +136,9 @@ int main(int argc, char** argv) {
         func_service_client.Event(event_type, &payload);
 
     if (!res_payload_opt.has_value()) {
-      output_str = "Warbling a text failed. Either the user or the reply_to warble does not exist. \n";
+      output_str =
+          "Warbling a text failed. Either the user or the reply_to warble does "
+          "not exist. \n";
       logAndPrint(output_str);
       exit(0);
     }
@@ -190,7 +192,8 @@ int main(int argc, char** argv) {
         func_service_client.Event(event_type, &payload);
 
     if (!res_payload_opt.has_value()) {
-      output_str = "Reading thread of warble " + warble_id + " failed. The warble ID does not exist. \n";
+      output_str = "Reading thread of warble " + warble_id +
+                   " failed. The warble ID does not exist. \n";
       logAndPrint(output_str);
       exit(0);
     }
@@ -226,7 +229,8 @@ int main(int argc, char** argv) {
         func_service_client.Event(event_type, &payload);
 
     if (!res_payload_opt.has_value()) {
-      output_str = "Getting user's profile failed. The user has not been registered. \n";
+      output_str =
+          "Getting user's profile failed. The user has not been registered. \n";
       logAndPrint(output_str);
       exit(0);
     }
@@ -240,12 +244,12 @@ int main(int argc, char** argv) {
     output_str = "User: " + FLAGS_user + " has followers :\n";
     logAndPrint(output_str);
     for (const auto& follower : followers) {
-      logAndPrint(follower+"\n");
+      logAndPrint(follower + "\n");
     }
     output_str = "User: " + FLAGS_user + " has followings :\n";
     logAndPrint(output_str);
     for (const auto& following : followings) {
-      logAndPrint(following+"\n");
+      logAndPrint(following + "\n");
     }
   } else {
     std::string output_str =

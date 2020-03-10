@@ -32,7 +32,8 @@ PayloadOptional WarbleService::RegisterUser(const Payload &payload) {
   StringVector keys_vector = {user_warbles_key};
   StringOptional user_warbles = kv_store_->Get(keys_vector).at(0);
 
-  bool is_user_exist = (user_warbles.has_value()) && (!user_warbles.value().empty());
+  bool is_user_exist =
+      (user_warbles.has_value()) && (!user_warbles.value().empty());
 
   RegisteruserReply reply;
   Payload reply_payload;
@@ -73,8 +74,8 @@ PayloadOptional WarbleService::Follow(const Payload &payload) {
   // Check if user_name and to_follow have been registered.
   bool is_user_name_registered =
       (user_followings != std::nullopt) && (!user_followings.value().empty());
-  bool is_to_follow_registered =
-      (to_follow_followers != std::nullopt) && (!to_follow_followers.value().empty());
+  bool is_to_follow_registered = (to_follow_followers != std::nullopt) &&
+                                 (!to_follow_followers.value().empty());
 
   // If either user_name or to_follow has not been registered, following
   // operations will fail.
@@ -183,17 +184,19 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload) {
   // Check whether user_name has been registered.
   StringOptional user_warbles = value_vector.at(0);
 
-  bool is_user_exist = (user_warbles.has_value()) && (!user_warbles.value().empty());
+  bool is_user_exist =
+      (user_warbles.has_value()) && (!user_warbles.value().empty());
 
   if (!is_user_exist) {
     return PayloadOptional();
   }
 
   // Check whether reply_to warble does exist.
-  if(reply_to != "") {
+  if (reply_to != "") {
     StringOptional warble = value_vector.at(2);
 
-    bool is_warble_exist = (warble != std::nullopt) && (!warble.value().empty());
+    bool is_warble_exist =
+        (warble != std::nullopt) && (!warble.value().empty());
 
     if (not is_warble_exist) {
       return PayloadOptional();
