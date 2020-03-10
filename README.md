@@ -2,7 +2,7 @@
 
 # Description
 
-This  is a course project, which includes three major parts: Faas platform, Warble application, KeyValue backend storage.
+This is a course project, which includes three major parts: Faas platform, Warble application, KeyValue backend storage.
 
 - Faas platform aka. func in the context of this project: a basic Function-as-a-Service platform.
 - Warble application: an application which runs on the Func and have the similiar basic functionality of Twitter.
@@ -10,13 +10,25 @@ This  is a course project, which includes three major parts: Faas platform, Warb
 
 # Table of Content
 
-[toc]
+- [Setup Environmnt](#setup-environmnt)
+  - [Setup Vagrant box](#setup-vagrant-box)
+  - [Setup the compiling tool - Cmake](#setup-the-compiling-tool---cmake)
+    - [Setup gflags](#setup-gflags)
+    - [Setup glog](#setup-glog)
+    - [Setup GTest](#setup-gtest)
+    - [Setup GMock](#setup-gmock)
+    - [Setup gRPC and Protobuf](#setup-grpc-and-protobuf)
+- [Compile the project](#compile-the-project)
+  - [Run the project](#run-the-project)
+  - [Run unit tests](#run-unit-tests)
+  - [Execution Sequence](#execution-sequence)
+- [Usage: Run Warble Application](#usage-run-warble-application)
 
 # Setup Environmnt
 
 ## Setup Vagrant box
 
-The Vagrantfile in the respository. 
+The Vagrantfile in the respository.
 
 After clone the respository to the local, move out Vagrantfile from the repository root directory to make it in the same level directory with the project.
 
@@ -162,8 +174,8 @@ The code will generated four execturables.
 
 \- warble: the warble application
 
-##Run unit tests
- 
+## Run unit tests
+
 The binary file fan_unit_tests includes unit tests suits for all of the modules: KeyValue Storage, Func and Warble.
 
 ```bash
@@ -173,7 +185,7 @@ $ ./faas_unit_tests
 
 ## Execution Sequence
 
-Open three terminal to start three excutables. 
+Open three terminal to start three excutables.
 
 1. Open 1st terminal to run the KeyValue Storage.
 
