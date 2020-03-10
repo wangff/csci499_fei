@@ -27,9 +27,9 @@ void FuncServiceClient::Hook(const int event_type,
     LOG(INFO) << "HooKRequest RPC succeed, EventType: " << event_type;
   } else {
     // Fail to put key-value pair.
-    LOG(ERROR) << "HooKRequest RPC failed, Key: " << event_type << std::endl
-               << "Error: " << status.error_code() << ": "
-               << status.error_message();
+    LOG(WARNING) << "HooKRequest RPC failed, Key: " << event_type << std::endl
+                 << "Error: " << status.error_code() << ": "
+                 << status.error_message();
   }
 }
 
@@ -55,14 +55,15 @@ void FuncServiceClient::UnHook(const int event_type) {
     LOG(INFO) << "UnhookRequest RPC succeed, EventType: " << event_type;
   } else {
     // Fail to put key-value pair.
-    LOG(ERROR) << "UnhookRequest RPC failed, Key: " << event_type << std::endl
-               << "Error: " << status.error_code() << ": "
-               << status.error_message();
+    LOG(WARNING) << "UnhookRequest RPC failed, Key: " << event_type << std::endl
+                 << "Error: " << status.error_code() << ": "
+                 << status.error_message();
   }
 }
 
 // Send the event gRPC requests to execute the specified warble handler function
-OptionalPayload FuncServiceClient::Event(const int event_type, Payload *payload) {
+OptionalPayload FuncServiceClient::Event(const int event_type,
+                                         Payload *payload) {
   // Data we are sending to the server.
   EventRequest request;
   request.set_event_type(event_type);
@@ -84,9 +85,9 @@ OptionalPayload FuncServiceClient::Event(const int event_type, Payload *payload)
     return reply.payload();
   } else {
     // Fail to execute the event.
-    LOG(ERROR) << "Event execution failed, Key: " << event_type << std::endl
-               << "Error: " << status.error_code() << ": "
-               << status.error_message();
+    LOG(WARNING) << "Event execution failed, Key: " << event_type << std::endl
+                 << "Error: " << status.error_code() << ": "
+                 << status.error_message();
     return OptionalPayload();
   }
 }

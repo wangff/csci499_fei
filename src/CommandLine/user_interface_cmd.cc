@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
   // Parse command line flags
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-//  FLAGS_alsologtostderr = 1;
+  //  FLAGS_alsologtostderr = 1;
 
   FuncServiceClient func_service_client(grpc::CreateChannel(
       "localhost:50001", grpc::InsecureChannelCredentials()));
@@ -80,7 +80,6 @@ int main(int argc, char** argv) {
   bool flag_profile_not_set =
       gflags::GetCommandLineFlagInfoOrDie("profile").is_default;
 
-  std::cout << "Hello Warble.\n";
   // ./warble --hook "event type:function str"
   if (!flag_hook_not_set) {
     auto splited_vector = split(FLAGS_hook, ':');
@@ -125,7 +124,7 @@ int main(int argc, char** argv) {
     request.set_username(FLAGS_user);
     request.set_text(FLAGS_warble);
     std::string output_str =
-        "User: " + FLAGS_user + "warble: " + FLAGS_warble + ".\n";
+        "User: " + FLAGS_user + "\nwarble: " + FLAGS_warble + ".\n";
     logAndPrint(output_str);
     if (!flag_reply_not_set) {
       request.set_parent_id(FLAGS_reply);
@@ -137,7 +136,9 @@ int main(int argc, char** argv) {
         func_service_client.Event(event_type, &payload);
 
     if (!res_payload_opt.has_value()) {
-      output_str = "Warbling a text failed. The user has not been registered. \n";
+      output_str =
+          "Warbling a text failed. Either the user or the reply_to warble does "
+          "not exist. \n";
       logAndPrint(output_str);
       exit(0);
     }
@@ -191,7 +192,8 @@ int main(int argc, char** argv) {
         func_service_client.Event(event_type, &payload);
 
     if (!res_payload_opt.has_value()) {
-      output_str = "Reading thread of warble " + warble_id + " failed. The warble ID does not exist. \n";
+      output_str = "Reading thread of warble " + warble_id +
+                   " failed. The warble ID does not exist. \n";
       logAndPrint(output_str);
       exit(0);
     }
@@ -200,19 +202,18 @@ int main(int argc, char** argv) {
     ReadReply reply;
     res_payload.UnpackTo(&reply);
 
-    if (reply.warbles_size() == 0) {
-      output_str = "Warble " + warble_id + " has no replies.\n";
-      logAndPrint(output_str);
-      exit(0);
-    }
-
     output_str = "Reads the warble thread starting at " + FLAGS_read + ".\n";
     logAndPrint(output_str);
-    for (const auto& warble : reply.warbles()) {
-      output_str = "User: " + warble.username() +
-                   "; Warble Id: " + warble.id() +
-                   "; Warble Text: " + warble.text() +
-                   "; Warble Reply To " + warble.parent_id() + ".\n";
+    for (int i = 0; i < reply.warbles_size(); i++) {
+      Warble warble = reply.warbles(i);
+      output_str = "Warble Id: " + warble.id() +
+                   "; User: " + warble.username() +
+                   "; Warble Text: " + warble.text();
+      if (i == 0) {
+        output_str += "\n";
+      } else {
+        output_str += "; Warble Reply To " + warble.parent_id() + ".\n";
+      }
       logAndPrint(output_str);
     }
   }
@@ -228,7 +229,8 @@ int main(int argc, char** argv) {
         func_service_client.Event(event_type, &payload);
 
     if (!res_payload_opt.has_value()) {
-      output_str = "Getting user's profile failed. The user has not been registered. \n";
+      output_str =
+          "Getting user's profile failed. The user has not been registered. \n";
       logAndPrint(output_str);
       exit(0);
     }
@@ -242,12 +244,16 @@ int main(int argc, char** argv) {
     output_str = "User: " + FLAGS_user + " has followers :\n";
     logAndPrint(output_str);
     for (const auto& follower : followers) {
-      logAndPrint(follower+"\n");
+      logAndPrint(follower + "\n");
     }
     output_str = "User: " + FLAGS_user + " has followings :\n";
     logAndPrint(output_str);
     for (const auto& following : followings) {
-      logAndPrint(following+"\n");
+      logAndPrint(following + "\n");
     }
+  } else {
+    std::string output_str =
+        "Invalid commad; \nPlease refer to ./warble --help.\n";
+    logAndPrint(output_str);
   }
 }
