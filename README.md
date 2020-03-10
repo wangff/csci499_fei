@@ -63,7 +63,7 @@ All my dependencies packages should be install globally.
 sudo apt-get install libgflags-dev
 ```
 
-###Setup glog
+### Setup glog
 
 ```bash
 # Sine I need version 0.4.0, so will build from source code of new release
@@ -77,7 +77,7 @@ $ make
 $ sudo make install
 ```
 
-###Setup GTest
+### Setup GTest
 
 ```bash
 $ sudo apt-get install libgtest-dev
@@ -91,7 +91,7 @@ $ sudo make
 $ sudo cp *.a /usr/lib
 ```
 
-###Setup GMock
+### Setup GMock
 
 ```bash
 $ sudo apt-get install google-mock
@@ -101,9 +101,9 @@ $ sudo make
 $ sudo cp *.a /usr/lib
 ```
 
-###Setup gRPC and Protobuf
+### Setup gRPC and Protobuf
 
-####Install pre-requisites
+#### Install pre-requisites
 
 ```bash
  $ cd ~
@@ -133,7 +133,7 @@ $ make
 $ sudo make install
 ```
 
-#Compile the project
+# Compile the project
 
 Use cmake to do compiling.
 
@@ -148,7 +148,7 @@ $ cmake ..
 $ make
 ```
 
-##Run the project
+## Run the project
 
 All exectuables will be in the bin directory.
 
@@ -163,7 +163,7 @@ The code will generated four execturables.
 \- warble: the warble application
 
 ##Run unit tests
-
+ 
 The binary file fan_unit_tests includes unit tests suits for all of the modules: KeyValue Storage, Func and Warble.
 
 ```bash
@@ -171,7 +171,7 @@ The binary file fan_unit_tests includes unit tests suits for all of the modules:
 $ ./faas_unit_tests
 ```
 
-##Execution Sequence
+## Execution Sequence
 
 Open three terminal to start three excutables. 
 
@@ -196,7 +196,7 @@ Open three terminal to start three excutables.
    $ ./configure_hooking
    ```
 
-#Usage: Run Warble Application
+# Usage: Run Warble Application
 
 Now, we could start run warble application.
 
