@@ -1,6 +1,6 @@
 # CSCI499 Robust Software Design and Implementation
 
-#Description
+# Description
 
 This  is a course project, which includes three major parts: Faas platform, Warble application, KeyValue backend storage.
 
@@ -8,11 +8,11 @@ This  is a course project, which includes three major parts: Faas platform, Warb
 - Warble application: an application which runs on the Func and have the similiar basic functionality of Twitter.
 - KeyValue backend storage: a backend data storage which stores data in the format of Key-Value pair.
 
-#Table of Content
+# Table of Content
 
 [toc]
 
-#Setup Environmnt
+# Setup Environmnt
 
 ## Setup Vagrant box
 
