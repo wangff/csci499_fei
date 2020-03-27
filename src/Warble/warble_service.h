@@ -20,26 +20,28 @@ class WarbleService : public WarbleServiceAbstraction {
   const std::string kInit = "INIT";
 
   // Constructor with the parameter of StoragePtr.
-  // StoragePtr used by Warble to communicate with KeyValueStore.
-  explicit WarbleService(const StoragePtr &storage_ptr)
-      : kv_store_(storage_ptr){};
+  explicit WarbleService(){};
 
   // Register the given user_name
-  PayloadOptional RegisterUser(const Payload &payload);
+  PayloadOptional RegisterUser(const Payload &payload,
+                               const StoragePtr &kv_store);
 
   // Post a new warble or post a new warble as a reply,
   // and return the id of the new warble.
-  PayloadOptional WarbleText(const Payload &payload);
+  PayloadOptional WarbleText(const Payload &payload,
+                             const StoragePtr &kv_store);
 
   // Start following a given user
-  PayloadOptional Follow(const Payload &payload);
+  PayloadOptional Follow(const Payload &payload, const StoragePtr &kv_store);
 
   // Read a warble thread from the given id.
   // Return the vector of the string serialization of Warble protobuf.
-  PayloadOptional ReadThread(const Payload &payload);
+  PayloadOptional ReadThread(const Payload &payload,
+                             const StoragePtr &kv_store);
 
   // Return the given user's following and followers
-  PayloadOptional ReadProfile(const Payload &payload);
+  PayloadOptional ReadProfile(const Payload &payload,
+                              const StoragePtr &kv_store);
 
   // Allow unit tests access private members
   FRIEND_TEST(
@@ -50,10 +52,6 @@ class WarbleService : public WarbleServiceAbstraction {
       shouldReturnNewWarbleWhenNewWarbleReplyToAnotherWarbleWithReplies);
 
  private:
-  // Pointer of storage abstraction.
-  // Used to access the KeyValue storage.
-  StoragePtr kv_store_;
-
   // Current warble id.
   // Whenever create a new warble, assign this id to this new warble.
   // Then increment by 1.

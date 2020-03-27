@@ -23,11 +23,11 @@ class MockStorage : public StorageAbstraction {
 // Used for dependency injection for Func_platform constructor
 class MockWarble : public WarbleServiceAbstraction {
  public:
-  MOCK_METHOD1(RegisterUser, PayloadOptional(const Payload &payload));
-  MOCK_METHOD1(WarbleText, PayloadOptional(const Payload &payload));
-  MOCK_METHOD1(Follow, PayloadOptional(const Payload &payload));
-  MOCK_METHOD1(ReadThread, PayloadOptional(const Payload &payload));
-  MOCK_METHOD1(ReadProfile, PayloadOptional(const Payload &payload));
+  MOCK_METHOD2(RegisterUser, PayloadOptional(const Payload &payload, const StoragePtr &store));
+  MOCK_METHOD2(WarbleText, PayloadOptional(const Payload &payload, const StoragePtr &store));
+  MOCK_METHOD2(Follow, PayloadOptional(const Payload &payload, const StoragePtr &store));
+  MOCK_METHOD2(ReadThread, PayloadOptional(const Payload &payload, const StoragePtr &store));
+  MOCK_METHOD2(ReadProfile, PayloadOptional(const Payload &payload, const StoragePtr &store));
 };
 
 // Init the global variables for all the test cases in this test suite
@@ -86,7 +86,7 @@ TEST_F(FuncPlatformTest, shouldCallRegisteruserWhenExectueEvent1) {
   Payload payload, reply_payload;
   payload.PackFrom(request);
 
-  EXPECT_CALL(*mock_warble_, RegisterUser(_))
+  EXPECT_CALL(*mock_warble_, RegisterUser(_,_))
       .Times(1)
       .WillOnce(Return(reply_payload));
   PayloadOptional reply_payload_opt = service_->Execute(event_type, payload);
@@ -105,7 +105,7 @@ TEST_F(FuncPlatformTest, shouldCallWarbleTextWhenExectueEvent2) {
   Payload payload, reply_payload;
   payload.PackFrom(request);
 
-  EXPECT_CALL(*mock_warble_, WarbleText(_))
+  EXPECT_CALL(*mock_warble_, WarbleText(_, _))
       .Times(1)
       .WillOnce(Return(reply_payload));
   PayloadOptional reply_payload_opt = service_->Execute(event_type, payload);
@@ -124,7 +124,7 @@ TEST_F(FuncPlatformTest, shouldCallFollowWhenExectueEvent3) {
   Payload payload, reply_payload;
   payload.PackFrom(request);
 
-  EXPECT_CALL(*mock_warble_, Follow(_))
+  EXPECT_CALL(*mock_warble_, Follow(_, _))
       .Times(1)
       .WillOnce(Return(reply_payload));
   PayloadOptional reply_payload_opt = service_->Execute(event_type, payload);
@@ -141,7 +141,7 @@ TEST_F(FuncPlatformTest, shouldCallReadThreadWhenExectueEvent4) {
   Payload payload, reply_payload;
   payload.PackFrom(request);
 
-  EXPECT_CALL(*mock_warble_, ReadThread(_))
+  EXPECT_CALL(*mock_warble_, ReadThread(_,_))
       .Times(1)
       .WillOnce(Return(reply_payload));
   PayloadOptional reply_payload_opt = service_->Execute(event_type, payload);
@@ -158,7 +158,7 @@ TEST_F(FuncPlatformTest, shouldCallReadProfileWhenExectueEvent5) {
   Payload payload, reply_payload;
   payload.PackFrom(request);
 
-  EXPECT_CALL(*mock_warble_, ReadProfile(_))
+  EXPECT_CALL(*mock_warble_, ReadProfile(_, _))
       .Times(1)
       .WillOnce(Return(reply_payload));
   PayloadOptional reply_payload_opt = service_->Execute(event_type, payload);

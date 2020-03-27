@@ -53,7 +53,7 @@ void RunServer() {
   StoragePtr storage_ptr =
       std::shared_ptr<KeyValueStoreClient>(new KeyValueStoreClient(channel));
   WarblePtr warble_ptr =
-      std::shared_ptr<WarbleService>(new WarbleService(storage_ptr));
+      std::shared_ptr<WarbleService>(new WarbleService());
 
   std::string server_address("0.0.0.0:50001");
   FuncServiceImpl func_service(storage_ptr, warble_ptr);

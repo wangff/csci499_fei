@@ -25,7 +25,7 @@ class MockStorage : public StorageAbstraction {
 class WarbleTest : public ::testing::Test {
  public:
   WarbleTest()
-      : mock_store_(new MockStorage), warble_(new WarbleService(mock_store_)) {}
+      : mock_store_(new MockStorage), warble_(new WarbleService()) {}
 
  protected:
   // dependencies
@@ -52,7 +52,7 @@ TEST_F(WarbleTest, shouldReturnPayloadWithValueWhenRegisterUserSuccessfully) {
   RegisteruserRequest mock_request;
   mock_request.set_username("Harry Potter");
   mock_payload.PackFrom(mock_request);
-  PayloadOptional reply_payload = warble_->RegisterUser(mock_payload);
+  PayloadOptional reply_payload = warble_->RegisterUser(mock_payload, mock_store_);
   EXPECT_TRUE(reply_payload.has_value());
 }
 
@@ -73,7 +73,7 @@ TEST_F(WarbleTest,
   RegisteruserRequest mock_request;
   mock_request.set_username("Harry Potter");
   mock_payload.PackFrom(mock_request);
-  PayloadOptional reply_payload = warble_->RegisterUser(mock_payload);
+  PayloadOptional reply_payload = warble_->RegisterUser(mock_payload, mock_store_);
   EXPECT_FALSE(reply_payload.has_value());
 }
 
@@ -95,7 +95,7 @@ TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenCallFollowAndUserNameNotExist) {
   request.set_username("Harry Potter");
   request.set_to_follow("Lord Voldmort");
   mock_payload.PackFrom(request);
-  PayloadOptional reply_payload_opt = warble_->Follow(mock_payload);
+  PayloadOptional reply_payload_opt = warble_->Follow(mock_payload, mock_store_);
   EXPECT_FALSE(reply_payload_opt.has_value());
 }
 
@@ -117,7 +117,7 @@ TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenCallFollowAndToFollowNotExist) {
   request.set_username("Harry Potter");
   request.set_to_follow("Lord Voldmort");
   mock_payload.PackFrom(request);
-  PayloadOptional reply_payload_opt = warble_->Follow(mock_payload);
+  PayloadOptional reply_payload_opt = warble_->Follow(mock_payload, mock_store_);
   EXPECT_FALSE(reply_payload_opt.has_value());
 }
 
@@ -145,7 +145,7 @@ TEST_F(WarbleTest, shouldPayloadWithValueWhenCallFollowFirstTime) {
   request.set_username("Harry Potter");
   request.set_to_follow("Lord Voldmort");
   mock_payload.PackFrom(request);
-  PayloadOptional reply_payload = warble_->Follow(mock_payload);
+  PayloadOptional reply_payload = warble_->Follow(mock_payload, mock_store_);
   EXPECT_TRUE(reply_payload.has_value());
 }
 
@@ -175,7 +175,7 @@ TEST_F(WarbleTest, shouldPayloadWithValueWhenCallFollow) {
   request.set_username("Harry Potter");
   request.set_to_follow("Lord Voldmort");
   mock_payload.PackFrom(request);
-  PayloadOptional reply_payload = warble_->Follow(mock_payload);
+  PayloadOptional reply_payload = warble_->Follow(mock_payload, mock_store_);
   EXPECT_TRUE(reply_payload.has_value());
 }
 
@@ -198,7 +198,7 @@ TEST_F(
   ProfileRequest request;
   request.set_username("Harry Potter");
   mock_payload.PackFrom(request);
-  PayloadOptional reply_payload_opt = warble_->ReadProfile(mock_payload);
+  PayloadOptional reply_payload_opt = warble_->ReadProfile(mock_payload, mock_store_);
 
   ASSERT_TRUE(reply_payload_opt.has_value());
   Payload reply_payload = reply_payload_opt.value();
@@ -229,7 +229,7 @@ TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenReadProfileOfAUserNotExist) {
   ProfileRequest request;
   request.set_username("Harry Potter");
   mock_payload.PackFrom(request);
-  PayloadOptional reply_payload_opt = warble_->ReadProfile(mock_payload);
+  PayloadOptional reply_payload_opt = warble_->ReadProfile(mock_payload, mock_store_);
 
   EXPECT_FALSE(reply_payload_opt.has_value());
 }
@@ -260,7 +260,7 @@ TEST_F(WarbleTest,
   ProfileRequest request;
   request.set_username("Harry Potter");
   mock_payload.PackFrom(request);
-  PayloadOptional reply_payload_opt = warble_->ReadProfile(mock_payload);
+  PayloadOptional reply_payload_opt = warble_->ReadProfile(mock_payload, mock_store_);
 
   ASSERT_TRUE(reply_payload_opt.has_value());
   Payload reply_payload = reply_payload_opt.value();
@@ -304,7 +304,7 @@ TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenWarbleWithAUserNotExist) {
   Payload mock_payload;
   mock_payload.PackFrom(request);
 
-  PayloadOptional reply_payload_opt = warble_->WarbleText(mock_payload);
+  PayloadOptional reply_payload_opt = warble_->WarbleText(mock_payload, mock_store_);
 
   EXPECT_FALSE(reply_payload_opt.has_value());
 }
@@ -330,7 +330,7 @@ TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenReplyToNotExist) {
   Payload mock_payload;
   mock_payload.PackFrom(request);
 
-  PayloadOptional reply_payload_opt = warble_->WarbleText(mock_payload);
+  PayloadOptional reply_payload_opt = warble_->WarbleText(mock_payload, mock_store_);
 
   EXPECT_FALSE(reply_payload_opt.has_value());
 }
@@ -359,7 +359,7 @@ TEST_F(WarbleTest,
   Payload mock_payload;
   mock_payload.PackFrom(request);
 
-  PayloadOptional reply_payload_opt = warble_->WarbleText(mock_payload);
+  PayloadOptional reply_payload_opt = warble_->WarbleText(mock_payload, mock_store_);
 
   ASSERT_TRUE(reply_payload_opt.has_value());
   Payload reply_payload = reply_payload_opt.value();
@@ -407,7 +407,7 @@ TEST_F(WarbleTest,
   Payload mock_payload;
   mock_payload.PackFrom(request);
 
-  PayloadOptional reply_payload_opt = warble_->WarbleText(mock_payload);
+  PayloadOptional reply_payload_opt = warble_->WarbleText(mock_payload, mock_store_);
 
   ASSERT_TRUE(reply_payload_opt.has_value());
   Payload reply_payload = reply_payload_opt.value();
@@ -454,7 +454,7 @@ TEST_F(WarbleTest,
   Payload mock_payload;
   mock_payload.PackFrom(request);
 
-  PayloadOptional reply_payload_opt = warble_->WarbleText(mock_payload);
+  PayloadOptional reply_payload_opt = warble_->WarbleText(mock_payload, mock_store_);
 
   ASSERT_TRUE(reply_payload_opt.has_value());
   Payload reply_payload = reply_payload_opt.value();
@@ -485,7 +485,7 @@ TEST_F(WarbleTest, shouldReturnEmptyPayloadWhenReadThreadNotExist) {
   Payload mock_payload;
   mock_payload.PackFrom(request);
 
-  PayloadOptional reply_payload_opt = warble_->ReadThread(mock_payload);
+  PayloadOptional reply_payload_opt = warble_->ReadThread(mock_payload, mock_store_);
 
   EXPECT_FALSE(reply_payload_opt.has_value());
 }
@@ -519,7 +519,7 @@ TEST_F(WarbleTest,
   Payload mock_payload;
   mock_payload.PackFrom(request);
 
-  PayloadOptional reply_payload_opt = warble_->ReadThread(mock_payload);
+  PayloadOptional reply_payload_opt = warble_->ReadThread(mock_payload, mock_store_);
 
   ASSERT_TRUE(reply_payload_opt.has_value());
   Payload reply_payload = reply_payload_opt.value();
@@ -598,7 +598,7 @@ TEST_F(
   Payload mock_payload;
   mock_payload.PackFrom(request);
 
-  PayloadOptional reply_payload_opt = warble_->ReadThread(mock_payload);
+  PayloadOptional reply_payload_opt = warble_->ReadThread(mock_payload, mock_store_);
 
   ASSERT_TRUE(reply_payload_opt.has_value());
   Payload reply_payload = reply_payload_opt.value();

@@ -44,21 +44,21 @@ class WarbleServiceAbstraction {
   virtual ~WarbleServiceAbstraction() = default;
 
   // Register the given user_name
-  virtual PayloadOptional RegisterUser(const Payload &payload) = 0;
+  virtual PayloadOptional RegisterUser(const Payload &payload, const StoragePtr &store) = 0;
 
   // Post a new warble or post a new warble as a reply,
   // and return the id of the new warble.
-  virtual PayloadOptional WarbleText(const Payload &payload) = 0;
+  virtual PayloadOptional WarbleText(const Payload &payload, const StoragePtr &store) = 0;
 
   // Start following a given user
-  virtual PayloadOptional Follow(const Payload &payload) = 0;
+  virtual PayloadOptional Follow(const Payload &payload, const StoragePtr &store) = 0;
 
   // Read a warble thread from the given id
   // Return the vector of the string serialization of Water protobuf
-  virtual PayloadOptional ReadThread(const Payload &payload) = 0;
+  virtual PayloadOptional ReadThread(const Payload &payload, const StoragePtr &store) = 0;
 
   // Return the given user's following and followers
-  virtual PayloadOptional ReadProfile(const Payload &payload) = 0;
+  virtual PayloadOptional ReadProfile(const Payload &payload, const StoragePtr &store) = 0;
 };
 }  // namespace cs499_fei
 #endif  // CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_ABSTRACTION_H_
