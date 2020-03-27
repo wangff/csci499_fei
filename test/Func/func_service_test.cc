@@ -23,11 +23,16 @@ class MockStorage : public StorageAbstraction {
 // Used for dependency injection for Func_platform constructor
 class MockWarble : public WarbleServiceAbstraction {
  public:
-  MOCK_METHOD2(RegisterUser, PayloadOptional(const Payload &payload, const StoragePtr &store));
-  MOCK_METHOD2(WarbleText, PayloadOptional(const Payload &payload, const StoragePtr &store));
-  MOCK_METHOD2(Follow, PayloadOptional(const Payload &payload, const StoragePtr &store));
-  MOCK_METHOD2(ReadThread, PayloadOptional(const Payload &payload, const StoragePtr &store));
-  MOCK_METHOD2(ReadProfile, PayloadOptional(const Payload &payload, const StoragePtr &store));
+  MOCK_METHOD2(RegisterUser, PayloadOptional(const Payload &payload,
+                                             const StoragePtr &store));
+  MOCK_METHOD2(WarbleText, PayloadOptional(const Payload &payload,
+                                           const StoragePtr &store));
+  MOCK_METHOD2(Follow, PayloadOptional(const Payload &payload,
+                                       const StoragePtr &store));
+  MOCK_METHOD2(ReadThread, PayloadOptional(const Payload &payload,
+                                           const StoragePtr &store));
+  MOCK_METHOD2(ReadProfile, PayloadOptional(const Payload &payload,
+                                            const StoragePtr &store));
 };
 
 // Init the global variables for all the test cases in this test suite
@@ -86,7 +91,7 @@ TEST_F(FuncPlatformTest, shouldCallRegisteruserWhenExectueEvent1) {
   Payload payload, reply_payload;
   payload.PackFrom(request);
 
-  EXPECT_CALL(*mock_warble_, RegisterUser(_,_))
+  EXPECT_CALL(*mock_warble_, RegisterUser(_, _))
       .Times(1)
       .WillOnce(Return(reply_payload));
   PayloadOptional reply_payload_opt = service_->Execute(event_type, payload);
@@ -141,7 +146,7 @@ TEST_F(FuncPlatformTest, shouldCallReadThreadWhenExectueEvent4) {
   Payload payload, reply_payload;
   payload.PackFrom(request);
 
-  EXPECT_CALL(*mock_warble_, ReadThread(_,_))
+  EXPECT_CALL(*mock_warble_, ReadThread(_, _))
       .Times(1)
       .WillOnce(Return(reply_payload));
   PayloadOptional reply_payload_opt = service_->Execute(event_type, payload);

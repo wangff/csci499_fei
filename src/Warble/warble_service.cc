@@ -17,7 +17,8 @@ StringVector deserialize(const std::string &s, char delim) {
   return res;
 }
 
-PayloadOptional WarbleService::RegisterUser(const Payload &payload, const StoragePtr &kv_store) {
+PayloadOptional WarbleService::RegisterUser(const Payload &payload,
+                                            const StoragePtr &kv_store) {
   RegisteruserRequest request;
   payload.UnpackTo(&request);
 
@@ -49,7 +50,8 @@ PayloadOptional WarbleService::RegisterUser(const Payload &payload, const Storag
   return PayloadOptional(reply_payload);
 }
 
-PayloadOptional WarbleService::Follow(const Payload &payload, const StoragePtr &kv_store) {
+PayloadOptional WarbleService::Follow(const Payload &payload,
+                                      const StoragePtr &kv_store) {
   FollowRequest request;
   payload.UnpackTo(&request);
 
@@ -101,7 +103,8 @@ PayloadOptional WarbleService::Follow(const Payload &payload, const StoragePtr &
   return PayloadOptional(reply_payload);
 }
 
-PayloadOptional WarbleService::ReadProfile(const Payload &payload, const StoragePtr &kv_store) {
+PayloadOptional WarbleService::ReadProfile(const Payload &payload,
+                                           const StoragePtr &kv_store) {
   ProfileRequest request;
   payload.UnpackTo(&request);
 
@@ -153,7 +156,8 @@ PayloadOptional WarbleService::ReadProfile(const Payload &payload, const Storage
   return PayloadOptional(reply_payload);
 }
 
-PayloadOptional WarbleService::WarbleText(const Payload &payload, const StoragePtr &kv_store) {
+PayloadOptional WarbleService::WarbleText(const Payload &payload,
+                                          const StoragePtr &kv_store) {
   timeval time;
   gettimeofday(&time, NULL);
 
@@ -241,7 +245,8 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload, const StorageP
   return PayloadOptional(reply_payload);
 }
 
-PayloadOptional WarbleService::ReadThread(const Payload &payload, const StoragePtr &kv_store) {
+PayloadOptional WarbleService::ReadThread(const Payload &payload,
+                                          const StoragePtr &kv_store) {
   ReadRequest request;
   payload.UnpackTo(&request);
   std::string warble_id = request.warble_id();

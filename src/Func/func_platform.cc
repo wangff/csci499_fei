@@ -34,7 +34,8 @@ PayloadOptional FuncPlatform::Execute(const EventType &event_type,
   }
 
   FunctionType func = kFunctionMap.at(functionName);
-  PayloadOptional reply_payload_opt = func(*warble_service_, payload, kv_store_);
+  PayloadOptional reply_payload_opt =
+      func(*warble_service_, payload, kv_store_);
   return reply_payload_opt;
 }
 }  // namespace cs499_fei
