@@ -23,8 +23,11 @@ This is a course project, which includes three major parts: Faas platform, Warbl
   - [Run unit tests](#run-unit-tests)
   - [Execution Sequence](#execution-sequence)
 - [Usage: Run Warble Application](#usage-run-warble-application)
+- [Refactor in Phase 2](#refactor-in-phase-2)
+  - [Ephemeral warble code](#ephemeral-warble-code)
+  - [Key-value store disk persistence](#key-value-store-disk-persistence)
 
-# Setup Environmnt
+# Setup Environment
 
 ## Setup Vagrant box
 
@@ -233,3 +236,16 @@ Now, we could start run warble application.
 - Read User's Profile
 
   e.g.: ./warble --user "user_name" --profile
+
+# Refactor in Phase 2
+
+## Ephemeral warble code
+
+Two changes are done to make my warble code ephemeral.
+
+\- Directly pass storage pointer in to each warble function instead of storing it as a member variable of warble class.
+
+\- Substitute the incremental index for new warbles' index in warble class with a random generate id for each new warble.
+
+## Key-value store disk persistence
+
