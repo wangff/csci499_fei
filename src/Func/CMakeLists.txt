@@ -27,7 +27,7 @@ include_directories(
 )
 
 # Func Service
-add_executable(func_server func_service.cc func_platform.cc func_platform.h storage_abstraction.h keyvaluestore_client.cc keyvaluestore_client.h ../Warble/warble_service_abstraction.h ../Warble/warble_service.cc ../Warble/warble_service.h ../Warble/profile.h)
+add_executable(func_server func_service.cc func_platform.cc func_platform.h storage_abstraction.h keyvaluestore_client.cc keyvaluestore_client.h ../Warble/warble_service_abstraction.h ../Warble/warble_service.cc ../Warble/warble_service.h ../Warble/profile.h ../Warble/random_generator.cc ../Warble/random_generator.h)
 
 # KeyValue Client
 

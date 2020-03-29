@@ -207,8 +207,8 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload,
     }
   }
 
-  std::string current_warble_id = std::to_string(warble_id_);
-  warble_id_++;
+  uint32_t warble_id = randomID();
+  std::string current_warble_id = std::to_string(warble_id);
 
   Warble new_warble;
   new_warble.set_username(user_name);

@@ -1,6 +1,7 @@
 #ifndef CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_H_
 #define CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_H_
 
+#include "random_generator.h"
 #include "warble_service_abstraction.h"
 
 namespace cs499_fei {
@@ -42,20 +43,6 @@ class WarbleService : public WarbleServiceAbstraction {
   // Return the given user's following and followers
   PayloadOptional ReadProfile(const Payload &payload,
                               const StoragePtr &kv_store);
-
-  // Allow unit tests access private members
-  FRIEND_TEST(
-      WarbleTest,
-      shouldReturnNewWarbleWhenNewWarbleReplyToAnotherWarbleWithoutReplies);
-  FRIEND_TEST(
-      WarbleTest,
-      shouldReturnNewWarbleWhenNewWarbleReplyToAnotherWarbleWithReplies);
-
- private:
-  // Current warble id.
-  // Whenever create a new warble, assign this id to this new warble.
-  // Then increment by 1.
-  int warble_id_ = 1;
 };
 }  // namespace cs499_fei
 #endif  // CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_H_

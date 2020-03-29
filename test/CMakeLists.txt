@@ -46,6 +46,7 @@ add_executable(${BINARY} main.cc
         
         ${WARBLE_TEST_SOURCES}
         ${CMAKE_SOURCE_DIR}/src/Warble/warble_service.cc
+        ${CMAKE_SOURCE_DIR}/src/Warble/random_generator.cc
     )
 
 # link generated pb library
