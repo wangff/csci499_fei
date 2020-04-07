@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "-std=c++17 -lstdc++fs")
 
 project(KeyValueStore)
 
@@ -28,7 +29,8 @@ include_directories("${CMAKE_BINARY_DIR}")
 
 set(BINARY kvstore_server)
 
-add_executable(${BINARY} keyvaluestore_server.cc  keyvaluestore_server.h threadsafe_map.cc threadsafe_map.h)
+add_executable(${BINARY} keyvaluestore_server.cc  keyvaluestore_server.h threadsafe_map.cc threadsafe_map.h persistence.cc persistence.h persistence_abstraction.h)
+target_link_libraries(${BINARY} stdc++fs)
 
 target_link_libraries(${BINARY} key_value_store_pb)
 target_link_libraries(${BINARY} ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})

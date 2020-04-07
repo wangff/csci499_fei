@@ -1,11 +1,23 @@
 #include <string>
 #include <thread>
 
-#include <gtest/gtest.h>
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 #include "../../src/KeyValueStore/threadsafe_map.h"
 
+using ::testing::Return;
+
 namespace cs499_fei {
+// Mock class of PersistenceAbstraction
+// Used for dependency injection for ThreadMap constructor
+class MockPersistence : public PersistenceAbstraction {
+ public:
+  MOCK_METHOD2(serialize,
+               void(const StringKVMap &kv_data, const std::string &to_file));
+  MOCK_METHOD1(deserialize, StringKVMap(const std::string &from_file));
+};
+
 using OptionalVector = std::vector<std::optional<std::string>>;
 
 void thread_put_pairs(ThreadsafeMap &m, int i) {
@@ -124,5 +136,26 @@ TEST(KeyValueStore, MultithreadsPutRemove) {
     const auto value = m.Get(key);
     EXPECT_TRUE(value == std::nullopt || value.value() == key);
   }
+}
+
+// Test: store functionality when start KeyValueStore in the in-memory model.
+// Expected: store will not crash and do nothing.
+TEST(KeyValueStore, ShouldNotStoreWhenInMemoryModel) {
+  ThreadsafeMap m;
+  std::string mock_file = "file_not_exist";
+  m.Store(mock_file);
+  EXPECT_FALSE(std::experimental::filesystem::exists(mock_file));
+}
+
+TEST(KeyValueStore, ShouldStoreDataIntoTheFile) {
+  std::shared_ptr<MockPersistence> mock_persist_ptr =
+      std::shared_ptr<MockPersistence>(new MockPersistence);
+  std::string mock_file = "data";
+
+  EXPECT_CALL(*mock_persist_ptr, deserialize(mock_file));
+  ThreadsafeMap map(mock_persist_ptr, mock_file);
+
+  EXPECT_CALL(*mock_persist_ptr, serialize(testing::_, mock_file));
+  map.Store(mock_file);
 }
 }  // namespace cs499_fei
