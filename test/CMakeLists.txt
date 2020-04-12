@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "-std=c++17 -lstdc++fs")
 
 project(Faas_tests)
 
@@ -43,7 +44,10 @@ add_executable(${BINARY} main.cc
         ${KEYVALUESTORE_TEST_SOURCES}
         ${CMAKE_SOURCE_DIR}/src/KeyValueStore/threadsafe_map.cc
         ${CMAKE_SOURCE_DIR}/src/Func/storage_abstraction.h
-        
+        ${CMAKE_SOURCE_DIR}/src/KeyValueStore/persistence_abstraction.h
+        ${CMAKE_SOURCE_DIR}/src/KeyValueStore/persistence.h
+        ${CMAKE_SOURCE_DIR}/src/KeyValueStore/persistence.cc
+
         ${WARBLE_TEST_SOURCES}
         ${CMAKE_SOURCE_DIR}/src/Warble/warble_service.cc
         ${CMAKE_SOURCE_DIR}/src/Warble/random_generator.cc
@@ -62,3 +66,4 @@ target_link_libraries(${BINARY} GTest::GTest GTest::Main)
 message(STATUS "\"${BINARY}\" will link mock libraries: \"${GMOCK_BOTH_LIBRARIES}\"")
 target_link_libraries(${BINARY} ${GMOCK_BOTH_LIBRARIES})
 
+target_link_libraries(${BINARY} stdc++fs)
