@@ -26,6 +26,8 @@ This is a course project, which includes three major parts: Faas platform, Warbl
 - [Refactor in Phase 2](#refactor-in-phase-2)
   - [Ephemeral warble code](#ephemeral-warble-code)
   - [Key-value store disk persistence](#key-value-store-disk-persistence)
+    - [Strategy](#strategy)
+    - [Usage](#usage)
 
 # Setup Environment
 
@@ -249,3 +251,17 @@ Two changes are done to make my warble code ephemeral.
 
 ## Key-value store disk persistence
 
+### Strategy
+
+I adopted the persistence strategy that store the in-memory data in one time upon terminateion signal is detected by the kvstore_server.
+
+### Usage
+
+```bash
+# in bin directory
+# start kvstore_server in the in-memory model
+$ ./kvstore_server
+
+# start kvstore_server in the persistence model
+$ ./kvstore_server <file_name>
+```
