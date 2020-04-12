@@ -43,7 +43,7 @@ using WarblePtr = std::shared_ptr<WarbleServiceAbstraction>;
 using EventType = unsigned int;
 using FunctionName = std::string;
 using FunctionType =
-    std::function<PayloadOptional(WarbleServiceAbstraction &, Payload)>;
+    std::function<PayloadOptional(WarbleServiceAbstraction &, Payload, StoragePtr)>;
 
 using EventFuncNameMap = std::unordered_map<unsigned int, std::string>;
 using StrFuncPair = std::unordered_map<std::string, FunctionType>;
@@ -55,21 +55,21 @@ const std::string kFunctionRead = "read";
 const std::string kFunctionProfile = "profile";
 
 const StrFuncPair kFunctionMap = {
-    {kFunctionRegister,
-     std::function<PayloadOptional(WarbleServiceAbstraction &, Payload)>(
-         &WarbleServiceAbstraction::RegisterUser)},
-    {kFunctionWarble,
-     std::function<PayloadOptional(WarbleServiceAbstraction &, Payload)>(
-         &WarbleServiceAbstraction::WarbleText)},
-    {kFunctionFollow,
-     std::function<PayloadOptional(WarbleServiceAbstraction &, Payload)>(
-         &WarbleServiceAbstraction::Follow)},
-    {kFunctionRead,
-     std::function<PayloadOptional(WarbleServiceAbstraction &, Payload)>(
-         &WarbleServiceAbstraction::ReadThread)},
-    {kFunctionProfile,
-     std::function<PayloadOptional(WarbleServiceAbstraction &, Payload)>(
-         &WarbleServiceAbstraction::ReadProfile)}};
+    {kFunctionRegister, std::function<PayloadOptional(
+                            WarbleServiceAbstraction &, Payload, StoragePtr)>(
+                            &WarbleServiceAbstraction::RegisterUser)},
+    {kFunctionWarble, std::function<PayloadOptional(WarbleServiceAbstraction &,
+                                                    Payload, StoragePtr)>(
+                          &WarbleServiceAbstraction::WarbleText)},
+    {kFunctionFollow, std::function<PayloadOptional(WarbleServiceAbstraction &,
+                                                    Payload, StoragePtr)>(
+                          &WarbleServiceAbstraction::Follow)},
+    {kFunctionRead, std::function<PayloadOptional(WarbleServiceAbstraction &,
+                                                  Payload, StoragePtr)>(
+                        &WarbleServiceAbstraction::ReadThread)},
+    {kFunctionProfile, std::function<PayloadOptional(WarbleServiceAbstraction &,
+                                                     Payload, StoragePtr)>(
+                           &WarbleServiceAbstraction::ReadProfile)}};
 // Faas platform support three features:
 // 1. Event Management: Registration and removal if installed
 // 2. Execute handler function in Warble.

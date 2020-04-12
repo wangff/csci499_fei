@@ -17,7 +17,8 @@ StringVector deserialize(const std::string &s, char delim) {
   return res;
 }
 
-PayloadOptional WarbleService::RegisterUser(const Payload &payload) {
+PayloadOptional WarbleService::RegisterUser(const Payload &payload,
+                                            const StoragePtr &kv_store) {
   RegisteruserRequest request;
   payload.UnpackTo(&request);
 
@@ -30,7 +31,7 @@ PayloadOptional WarbleService::RegisterUser(const Payload &payload) {
   std::string user_followings_key =
       kUserFollowingsPrefix + kUserPrefix + user_name;
   StringVector keys_vector = {user_warbles_key};
-  StringOptional user_warbles = kv_store_->Get(keys_vector).at(0);
+  StringOptional user_warbles = kv_store->Get(keys_vector).at(0);
 
   bool is_user_exist =
       (user_warbles.has_value()) && (!user_warbles.value().empty());
@@ -43,13 +44,14 @@ PayloadOptional WarbleService::RegisterUser(const Payload &payload) {
     return PayloadOptional();
   }
 
-  kv_store_->Put(user_warbles_key, kInit);
-  kv_store_->Put(user_followers_key, kInit);
-  kv_store_->Put(user_followings_key, kInit);
+  kv_store->Put(user_warbles_key, kInit);
+  kv_store->Put(user_followers_key, kInit);
+  kv_store->Put(user_followings_key, kInit);
   return PayloadOptional(reply_payload);
 }
 
-PayloadOptional WarbleService::Follow(const Payload &payload) {
+PayloadOptional WarbleService::Follow(const Payload &payload,
+                                      const StoragePtr &kv_store) {
   FollowRequest request;
   payload.UnpackTo(&request);
 
@@ -64,7 +66,7 @@ PayloadOptional WarbleService::Follow(const Payload &payload) {
   key_vector.push_back(user_followings_key);
   key_vector.push_back(to_follow_followers_key);
 
-  StringOptionalVector value_vector = kv_store_->Get(key_vector);
+  StringOptionalVector value_vector = kv_store->Get(key_vector);
   StringOptional user_followings = value_vector.at(0);
   StringOptional to_follow_followers = value_vector.at(1);
 
@@ -92,8 +94,8 @@ PayloadOptional WarbleService::Follow(const Payload &payload) {
         to_follow_followers.value() + "," + new_to_follow_followers;
   }
 
-  kv_store_->Put(user_followings_key, new_user_followings);
-  kv_store_->Put(to_follow_followers_key, new_to_follow_followers);
+  kv_store->Put(user_followings_key, new_user_followings);
+  kv_store->Put(to_follow_followers_key, new_to_follow_followers);
 
   FollowReply reply;
   Payload reply_payload;
@@ -101,7 +103,8 @@ PayloadOptional WarbleService::Follow(const Payload &payload) {
   return PayloadOptional(reply_payload);
 }
 
-PayloadOptional WarbleService::ReadProfile(const Payload &payload) {
+PayloadOptional WarbleService::ReadProfile(const Payload &payload,
+                                           const StoragePtr &kv_store) {
   ProfileRequest request;
   payload.UnpackTo(&request);
 
@@ -114,7 +117,7 @@ PayloadOptional WarbleService::ReadProfile(const Payload &payload) {
   key_vector.push_back(user_followings_key);
   key_vector.push_back(user_followers_key);
 
-  StringOptionalVector value_vector = kv_store_->Get(key_vector);
+  StringOptionalVector value_vector = kv_store->Get(key_vector);
   StringOptional user_followings = value_vector.at(0);
   StringOptional user_followers = value_vector.at(1);
 
@@ -153,7 +156,8 @@ PayloadOptional WarbleService::ReadProfile(const Payload &payload) {
   return PayloadOptional(reply_payload);
 }
 
-PayloadOptional WarbleService::WarbleText(const Payload &payload) {
+PayloadOptional WarbleService::WarbleText(const Payload &payload,
+                                          const StoragePtr &kv_store) {
   timeval time;
   gettimeofday(&time, NULL);
 
@@ -179,7 +183,7 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload) {
     key_vector.push_back(warble_key);
   }
 
-  StringOptionalVector value_vector = kv_store_->Get(key_vector);
+  StringOptionalVector value_vector = kv_store->Get(key_vector);
 
   // Check whether user_name has been registered.
   StringOptional user_warbles = value_vector.at(0);
@@ -203,8 +207,8 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload) {
     }
   }
 
-  std::string current_warble_id = std::to_string(warble_id_);
-  warble_id_++;
+  uint32_t warble_id = randomID();
+  std::string current_warble_id = std::to_string(warble_id);
 
   Warble new_warble;
   new_warble.set_username(user_name);
@@ -215,14 +219,14 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload) {
   new_warble.mutable_timestamp()->set_useconds(time.tv_usec);
 
   std::string warble_key = kWarblePrefix + current_warble_id;
-  kv_store_->Put(warble_key, new_warble.SerializeAsString());
+  kv_store->Put(warble_key, new_warble.SerializeAsString());
 
   std::string new_user_warbles = current_warble_id;
   if ((user_warbles != std::nullopt) && (user_warbles.value() != kInit)) {
     new_user_warbles = user_warbles.value() + "," + new_user_warbles;
   }
 
-  kv_store_->Put(user_warble_key, new_user_warbles);
+  kv_store->Put(user_warble_key, new_user_warbles);
 
   if (reply_to != "") {
     StringOptional warble_thread = value_vector.at(1);
@@ -230,7 +234,7 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload) {
     if ((warble_thread != std::nullopt) && (warble_thread.value() != "")) {
       new_warble_thread = warble_thread.value() + "," + new_warble_thread;
     }
-    kv_store_->Put(warble_thread_key, new_warble_thread);
+    kv_store->Put(warble_thread_key, new_warble_thread);
   }
 
   WarbleReply reply;
@@ -241,7 +245,8 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload) {
   return PayloadOptional(reply_payload);
 }
 
-PayloadOptional WarbleService::ReadThread(const Payload &payload) {
+PayloadOptional WarbleService::ReadThread(const Payload &payload,
+                                          const StoragePtr &kv_store) {
   ReadRequest request;
   payload.UnpackTo(&request);
   std::string warble_id = request.warble_id();
@@ -251,7 +256,7 @@ PayloadOptional WarbleService::ReadThread(const Payload &payload) {
       kWarbleThreadPrefix + kWarblePrefix + warble_id;
   std::string warble_key = kWarblePrefix + warble_id;
   StringVector key_vector = {warble_thread_key, warble_key};
-  StringOptionalVector value_vector = kv_store_->Get(key_vector);
+  StringOptionalVector value_vector = kv_store->Get(key_vector);
   StringOptional warble_ids_opt = value_vector.at(0);
   StringOptional warble = value_vector.at(1);
 
@@ -285,7 +290,7 @@ PayloadOptional WarbleService::ReadThread(const Payload &payload) {
   for (auto s : warble_ids_vector) {
     key_vector.push_back(kWarblePrefix + s);
   }
-  StringOptionalVector warbles_opt_vector = kv_store_->Get(key_vector);
+  StringOptionalVector warbles_opt_vector = kv_store->Get(key_vector);
   for (auto op : warbles_opt_vector) {
     auto w = reply.add_warbles();
     w->ParseFromString(op.value());
