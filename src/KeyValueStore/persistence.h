@@ -4,9 +4,6 @@
 #include "persistence_abstraction.h"
 
 namespace cs499_fei {
-// Delimiter to separate the key and value
-const char kDelimKeyValue = '#';
-
 // Persistence strategy:
 // Serialize and deserialize in-memory key-value data to the local file just
 // once.
