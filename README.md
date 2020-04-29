@@ -263,5 +263,5 @@ I adopted the persistence strategy that store the in-memory data in one time upo
 $ ./kvstore_server
 
 # start kvstore_server in the persistence model
-$ ./kvstore_server <file_name>
+$ ./kvstore_server --store <file_name>
 ```
