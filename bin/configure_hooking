@@ -4,3 +4,4 @@
 ./warble --hook "3:follow"
 ./warble --hook "4:read"
 ./warble --hook "5:profile"
+./warble --hook "6:stream"

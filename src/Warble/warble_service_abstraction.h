@@ -27,6 +27,8 @@ using warble::Timestamp;
 using warble::Warble;
 using warble::WarbleReply;
 using warble::WarbleRequest;
+using warble::StreamRequest;
+using warble::StreamReply;
 
 namespace cs499_fei {
 using Payload = ::google::protobuf::Any;
@@ -64,6 +66,10 @@ class WarbleServiceAbstraction {
   // Return the given user's following and followers
   virtual PayloadOptional ReadProfile(const Payload &payload,
                                       const StoragePtr &store) = 0;
+
+  // Streams all new warbles containing hashtag
+  virtual PayloadOptional Stream(const Payload &payload,
+                                 const StoragePtr &store) = 0;
 };
 }  // namespace cs499_fei
 #endif  // CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_ABSTRACTION_H_

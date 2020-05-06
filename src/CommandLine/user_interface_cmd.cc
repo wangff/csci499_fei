@@ -1,8 +1,12 @@
+#include <chrono>
+#include <ctime>
 #include <iostream>
 #include <vector>
 #include <string>
 #include <sstream>
 #include <sys/time.h>
+#include <thread>
+#include <unistd.h>
 
 #include <glog/logging.h>
 
@@ -20,6 +24,8 @@ using warble::Timestamp;
 using warble::Warble;
 using warble::WarbleReply;
 using warble::WarbleRequest;
+using warble::StreamRequest;
+using warble::StreamReply;
 
 using cs499_fei::FLAGS_follow;
 using cs499_fei::FLAGS_hook;
@@ -30,6 +36,7 @@ using cs499_fei::FLAGS_reply;
 using cs499_fei::FLAGS_unhook;
 using cs499_fei::FLAGS_user;
 using cs499_fei::FLAGS_warble;
+using cs499_fei::FLAGS_stream;
 using cs499_fei::FuncServiceClient;
 
 // Helper function: Log with glog and print in console
@@ -79,6 +86,8 @@ int main(int argc, char** argv) {
       gflags::GetCommandLineFlagInfoOrDie("read").is_default;
   bool flag_profile_not_set =
       gflags::GetCommandLineFlagInfoOrDie("profile").is_default;
+  bool flag_stream_not_set =
+      gflags::GetCommandLineFlagInfoOrDie("stream").is_default;
 
   // ./warble --hook "event type:function str"
   if (!flag_hook_not_set) {
@@ -113,7 +122,7 @@ int main(int argc, char** argv) {
       output_str = "Registration failed.\n";
     }
     logAndPrint(output_str);
-  }
+  } 
   // ./warble --user "username" --warble "warble content"
   // ./warble --user "username" --warble "warble content" --reply "reply to
   // id"
@@ -250,6 +259,46 @@ int main(int argc, char** argv) {
     logAndPrint(output_str);
     for (const auto& following : followings) {
       logAndPrint(following + "\n");
+    }
+  }
+  // ./warble --stream <hashtag> 
+  else if (!flag_stream_not_set) {
+    std::string output = "Stream all new warbles containing #" + FLAGS_stream +":\n";
+    logAndPrint(output);
+    StreamRequest request;
+    auto now = std::chrono::system_clock::now().time_since_epoch();
+    Timestamp* time = new Timestamp();
+    time->set_seconds(std::chrono::duration_cast<std::chrono::seconds>(now).count());
+    time->set_useconds(std::chrono::duration_cast<std::chrono::milliseconds>(now).count());
+    request.set_allocated_time(time);
+    request.set_hashtag(FLAGS_stream);
+
+    while (true) {
+      Payload payload;
+      payload.PackFrom(request);
+      int event_type = 6;
+      OptionalPayload res_payload_opt = func_service_client.Event(event_type, &payload);
+      if (res_payload_opt.has_value()) {
+        StreamReply reply;
+        res_payload_opt.value().UnpackTo(&reply);
+        for (int i = 0; i < reply.warbles_size(); i++) {
+          Warble warble = reply.warbles(i);
+          int seconds = warble.timestamp().seconds();
+          std::time_t t = static_cast<std::time_t>(seconds);
+          std::string time_string(std::asctime(std::localtime(&t)));
+          std::string output_str = "Warble Id: " + warble.id() 
+                                 + "; User: " + warble.username() 
+                                 + "; Warble Text: " + warble.text()
+                                 + "; Time: " +  time_string ;
+          logAndPrint(output_str);
+        }
+        if (reply.warbles_size() > 0) {
+          Timestamp latest = reply.warbles((reply.warbles_size() - 1)).timestamp();
+          request.mutable_time()->CopyFrom(latest);
+        }
+      }
+      //refresh every 5s
+      std::this_thread::sleep_for(std::chrono::seconds(5));
     }
   } else {
     std::string output_str =

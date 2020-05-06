@@ -16,6 +16,7 @@ class WarbleService : public WarbleServiceAbstraction {
   const std::string kUserFollowingsPrefix = "user_followings_";
   const std::string kWarblePrefix = "warble_";
   const std::string kWarbleThreadPrefix = "warble_thread_";
+  const std::string kHashtagPrefix = "hashtag_";
 
   // The label to show the user's profile has been initialization.
   const std::string kInit = "INIT";
@@ -43,6 +44,11 @@ class WarbleService : public WarbleServiceAbstraction {
   // Return the given user's following and followers
   PayloadOptional ReadProfile(const Payload &payload,
                               const StoragePtr &kv_store);
+  // Streams all new warbles containing hashtag
+  PayloadOptional Stream(const Payload &payload,
+                                 const StoragePtr &kv_store);
+  // Get a list of hashtags contained in the warble text
+  StringVector GetHashtagList(std::string text);
 };
 }  // namespace cs499_fei
 #endif  // CSCI499_FEI_SRC_WARBLE_WARBLE_SERVICE_H_

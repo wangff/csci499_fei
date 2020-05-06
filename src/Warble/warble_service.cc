@@ -167,6 +167,7 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload,
   std::string user_name = request.username();
   std::string text = request.text();
   std::string reply_to = request.parent_id();
+  StringVector hashtag_list = GetHashtagList(text);
 
   // Create key vector
   // 0: warble list for user_name
@@ -227,6 +228,22 @@ PayloadOptional WarbleService::WarbleText(const Payload &payload,
   }
 
   kv_store->Put(user_warble_key, new_user_warbles);
+
+  // Put {hashtag, Warble} pair to kv_store
+  for (int i = 0; i < hashtag_list.size(); i++) {
+    std::string hashtag_key = kHashtagPrefix + hashtag_list[i];
+    StringVector k = {hashtag_key};
+    StringOptionalVector v = kv_store->Get(k);
+    StringOptional value = std::nullopt;
+    if (v.size() > 0) {
+      value = v[0];
+    }
+    std::string id_list = current_warble_id;
+    if (value != std::nullopt && value.value() != "") {
+      id_list = value.value() + "," + id_list;
+    }
+    kv_store->Put(hashtag_key, id_list);
+  }
 
   if (reply_to != "") {
     StringOptional warble_thread = value_vector.at(1);
@@ -299,4 +316,59 @@ PayloadOptional WarbleService::ReadThread(const Payload &payload,
   reply_payload.PackFrom(reply);
   return PayloadOptional(reply_payload);
 }
+
+PayloadOptional WarbleService::Stream(const Payload &payload, 
+                                       const StoragePtr &kv_store) {
+  StreamRequest request;
+  StreamReply reply;
+  Payload reply_payload;
+  StringVector key_vector;
+  payload.UnpackTo(&request);
+  std::string hashtag_key = kHashtagPrefix + request.hashtag();;
+  Timestamp time = request.time();
+  int startTime = time.seconds();
+  
+  StringVector k = {hashtag_key};
+  std::string string_ids = kv_store->Get(k)[0].value_or("");
+  if (string_ids != "") {
+    StringVector vector_ids = deserialize(string_ids, ',');
+    for (auto s : vector_ids) {
+      key_vector.push_back(kWarblePrefix + s);
+    }
+    StringOptionalVector warbles_opt_vector = kv_store->Get(key_vector);
+    LOG(INFO) << "The number of warbles containing hastag:" << warbles_opt_vector.size()<<std::endl;
+    if (warbles_opt_vector.size() > 0) {
+      for (auto op : warbles_opt_vector) {
+        Warble temp;
+        temp.ParseFromString(op.value());
+        int w_time = temp.timestamp().seconds();
+        if (w_time > startTime) {
+          auto w = reply.add_warbles();
+          w->ParseFromString(op.value());
+        }
+      }
+    }
+  }
+  reply_payload.PackFrom(reply);
+  return PayloadOptional(reply_payload);
+}
+
+StringVector WarbleService::GetHashtagList(std::string text) {
+  StringVector list;
+  int i = 0;
+  while (i < text.length()) {
+    if(text.at(i) == '#') {
+      i++;
+      int start = i;
+      while (i < text.length() && text.at(i) != ' ') {
+        i++;
+      }
+      int end = i;
+      list.push_back(text.substr(start, end-start));
+    }
+    i++;
+  }
+  return list;
+}
+
 }  // namespace cs499_fei
