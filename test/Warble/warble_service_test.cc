@@ -481,7 +481,7 @@ TEST_F(WarbleTest,
 
 // Test Warble function put <#hashtag, warbleid_string_list> to kv_store
 // when a warble contains [# + string].
-TEST_F(WarbleTest, Put_Hashtag_to_Kvstore_WhenExists) {
+TEST_F(WarbleTest, shouldPutHashtagtoKvstoreWhenExists) {
     // mock warble id
   std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
   StringVector key_vector = {mock_user_warbles_key};

@@ -329,21 +329,27 @@ PayloadOptional WarbleService::Stream(const Payload &payload,
   int startTime = time.seconds();
   
   StringVector k = {hashtag_key};
-  std::string string_ids = kv_store->Get(k)[0].value_or("");
+  std::string string_ids = "";
+  StringOptionalVector res = kv_store->Get(k);
+  if (res.size() == 0) {
+    return PayloadOptional();
+  } else {
+    string_ids = res[0].value_or("");
+  }
   if (string_ids != "") {
     StringVector vector_ids = deserialize(string_ids, ',');
-    for (auto s : vector_ids) {
+    for (const auto& s : vector_ids) {
       key_vector.push_back(kWarblePrefix + s);
     }
     StringOptionalVector warbles_opt_vector = kv_store->Get(key_vector);
     LOG(INFO) << "The number of warbles containing hastag:" << warbles_opt_vector.size()<<std::endl;
     if (warbles_opt_vector.size() > 0) {
-      for (auto op : warbles_opt_vector) {
+      for (const auto& op : warbles_opt_vector) {
         Warble temp;
         temp.ParseFromString(op.value());
         int w_time = temp.timestamp().seconds();
         if (w_time > startTime) {
-          auto w = reply.add_warbles();
+          Warble* w = reply.add_warbles();
           w->ParseFromString(op.value());
         }
       }
