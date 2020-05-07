@@ -1,4 +1,5 @@
 #include <string>
+#include <chrono>
 
 #include "func_platform.h"
 #include "gmock/gmock.h"
@@ -33,6 +34,8 @@ class MockWarble : public WarbleServiceAbstraction {
                                            const StoragePtr &store));
   MOCK_METHOD2(ReadProfile, PayloadOptional(const Payload &payload,
                                             const StoragePtr &store));
+  MOCK_METHOD2(Stream, PayloadOptional(const Payload &payload,
+                                            const StoragePtr &store));
 };
 
 // Init the global variables for all the test cases in this test suite
@@ -49,6 +52,7 @@ class FuncPlatformTest : public ::testing::Test {
     service_->Hook(3, "follow");
     service_->Hook(4, "read");
     service_->Hook(5, "profile");
+    service_->Hook(6, "stream");
   }
 
  protected:
@@ -164,6 +168,29 @@ TEST_F(FuncPlatformTest, shouldCallReadProfileWhenExectueEvent5) {
   payload.PackFrom(request);
 
   EXPECT_CALL(*mock_warble_, ReadProfile(_, _))
+      .Times(1)
+      .WillOnce(Return(reply_payload));
+  PayloadOptional reply_payload_opt = service_->Execute(event_type, payload);
+  EXPECT_TRUE(reply_payload_opt.has_value());
+}
+
+// Test: Execute with event_type = 6
+// Expected: warbler_service_ will call Stream function
+TEST_F(FuncPlatformTest, shouldCallStreamWhenExectueEvent6) {
+  int event_type = 6;
+  StreamRequest request;
+  StreamReply reply;
+  request.set_hashtag("ha");
+  auto now = std::chrono::system_clock::now().time_since_epoch();
+  Timestamp* time = new Timestamp();
+  time->set_seconds(std::chrono::duration_cast<std::chrono::seconds>(now).count());
+  time->set_useconds(std::chrono::duration_cast<std::chrono::milliseconds>(now).count());
+  request.set_allocated_time(time);
+
+  Payload payload, reply_payload;
+  payload.PackFrom(request);
+
+  EXPECT_CALL(*mock_warble_, Stream(_, _))
       .Times(1)
       .WillOnce(Return(reply_payload));
   PayloadOptional reply_payload_opt = service_->Execute(event_type, payload);

@@ -2,6 +2,7 @@
 
 #include <sys/time.h>
 
+#include <chrono>
 #include <string>
 
 #include "gmock/gmock.h"
@@ -476,6 +477,35 @@ TEST_F(WarbleTest,
   EXPECT_EQ(reply.mutable_warble()->text(), request.text());
   EXPECT_FALSE(reply.mutable_warble()->id().empty());
   EXPECT_EQ(reply.mutable_warble()->parent_id(), request.parent_id());
+}
+
+// Test Warble function put <#hashtag, warbleid_string_list> to kv_store
+// when a warble contains [# + string].
+TEST_F(WarbleTest, shouldPutHashtagtoKvstoreWhenExists) {
+    // mock warble id
+  std::string mock_user_warbles_key = "user_warbles_user_Harry Potter";
+  StringVector key_vector = {mock_user_warbles_key};
+  std::string hashtag_key = "hashtag_haha";
+  StringVector hashtag_key_vector = {hashtag_key};
+
+  StringOptionalVector mock_value_vector = {StringOptional("INIT")};
+  EXPECT_CALL(*mock_store_, Get(key_vector))
+      .WillOnce(Return(mock_value_vector));
+
+  EXPECT_CALL(*mock_store_, Put(testing::_, testing::_));
+  EXPECT_CALL(*mock_store_, Put(mock_user_warbles_key, testing::_));
+  EXPECT_CALL(*mock_store_, Get(hashtag_key_vector));
+  EXPECT_CALL(*mock_store_, Put(hashtag_key, testing::_));
+
+  WarbleRequest request;
+  request.set_username("Harry Potter");
+  request.set_text("It's #haha my first warble.");
+
+  Payload mock_payload;
+  mock_payload.PackFrom(request);
+
+  PayloadOptional reply_payload_opt =
+      warble_->WarbleText(mock_payload, mock_store_);
 }
 
 // Test: ReadThread of a warble with id "123" that does not exist.

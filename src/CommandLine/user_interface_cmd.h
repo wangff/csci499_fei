@@ -21,5 +21,7 @@ DEFINE_string(read, "warble_id",
               "Reads the warble thread starting at the given id");
 DEFINE_bool(profile, true,
             "Gets the user’s profile of following and followers");
+DEFINE_string(stream, "hashtag",
+            "Streams all new warbles containing hashtag");
 }//   namespace cs499_fei
 #endif //  CS CI499_FEI_SRC_FRONTEND_USER_INTERFACE_CMD_H_

@@ -53,6 +53,7 @@ const std::string kFunctionWarble = "warble";
 const std::string kFunctionFollow = "follow";
 const std::string kFunctionRead = "read";
 const std::string kFunctionProfile = "profile";
+const std::string kFunctionStream = "stream";
 
 const StrFuncPair kFunctionMap = {
     {kFunctionRegister, std::function<PayloadOptional(
@@ -69,7 +70,10 @@ const StrFuncPair kFunctionMap = {
                         &WarbleServiceAbstraction::ReadThread)},
     {kFunctionProfile, std::function<PayloadOptional(WarbleServiceAbstraction &,
                                                      Payload, StoragePtr)>(
-                           &WarbleServiceAbstraction::ReadProfile)}};
+                           &WarbleServiceAbstraction::ReadProfile)},
+    {kFunctionStream, std::function<PayloadOptional(WarbleServiceAbstraction &,
+                                                     Payload, StoragePtr)>(
+                           &WarbleServiceAbstraction::Stream)}};
 // Faas platform support three features:
 // 1. Event Management: Registration and removal if installed
 // 2. Execute handler function in Warble.
