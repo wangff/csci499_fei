@@ -238,6 +238,9 @@ Now, we could start run warble application.
 - Read User's Profile
 
   e.g.: ./warble --user "user_name" --profile
+- Stream
+
+  e.g.: ./warble --stream "hashtag"
 
 # Refactor in Phase 2
 
